@@ -1,0 +1,130 @@
+from fastapi import APIRouter, Body, Depends, HTTPException, status
+from typing import Annotated, Dict, Any, List
+from app.database import db
+from app.models.user import User
+from app.models.portfolio import Portfolio
+from app.routes.auth import get_current_user
+from app.services.optimizer_service import generate_portfolio
+from app.services.gemini_service import generate_portfolio_prompt, explain_concept
+from bson import ObjectId
+
+router = APIRouter()
+
+@router.post("/optimize", response_description="Generate and save user portfolio")
+async def optimize_portfolio(
+    current_user: Annotated[User, Depends(get_current_user)],
+    portfolio_data: Dict[str, Any] = Body(...)
+):
+    user_id = str(current_user["_id"])
+    user_profile = {
+        "risk_level": portfolio_data.get("risk_level"),
+        "investment_goal": portfolio_data.get("investment_goal"),
+        "experience_level": portfolio_data.get("experience_level"),
+        "country": portfolio_data.get("country"),
+    }
+    preferences = portfolio_data.get("preferences", {})
+
+    # Generar portafolio usando el servicio de optimización (simple o avanzado)
+    optimized_portfolio = generate_portfolio(user_profile, preferences)
+
+    # Opcional: Usar Gemini para generar el portafolio (si está configurado y se desea)
+    # gemini_portfolio_response = generate_portfolio_prompt(user_profile, preferences)
+    # if gemini_portfolio_response and "assets" in gemini_portfolio_response:
+    #     optimized_portfolio["assets"] = gemini_portfolio_response["assets"]
+    #     optimized_portfolio["metrics"] = gemini_portfolio_response["metrics"]
+
+    new_portfolio = Portfolio(
+        user_id=user_id,
+        assets=optimized_portfolio["assets"],
+        metrics=optimized_portfolio["metrics"]
+    )
+    
+    # Guardar el portafolio en la base de datos
+    inserted_portfolio = db.portfolios.insert_one(new_portfolio.dict(by_alias=True, exclude_unset=True))
+    created_portfolio = db.portfolios.find_one({"_id": inserted_portfolio.inserted_id})
+    
+    return created_portfolio
+
+@router.get("/portfolio/{user_id}", response_description="Get user portfolio and simulations")
+async def get_user_portfolio(user_id: str, current_user: Annotated[User, Depends(get_current_user)]):
+    if str(current_user["_id"]) != user_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Not authorized to view this portfolio")
+    
+    portfolio = db.portfolios.find_one({"user_id": user_id})
+    if portfolio:
+        return portfolio
+    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Portfolio not found")
+
+@router.post("/simulate", response_description="Execute or save a simulation")
+async def simulate_portfolio(
+    current_user: Annotated[User, Depends(get_current_user)],
+    simulation_data: Dict[str, Any] = Body(...)
+):
+    user_id = str(current_user["_id"])
+    portfolio_id = simulation_data.get("portfolio_id")
+    if not portfolio_id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Portfolio ID is required for simulation")
+
+    # Aquí iría la lógica de simulación. Por ahora, solo guardamos los datos.
+    # En una implementación real, esto ejecutaría cálculos complejos.
+    simulation_result = {
+        "timestamp": datetime.utcnow().isoformat(),
+        "params": simulation_data.get("params"),
+        "result": {"mock_performance": [10000, 10100, 10250, 10400, 10500]}
+    }
+
+    update_result = db.portfolios.update_one(
+        {"_id": ObjectId(portfolio_id), "user_id": user_id},
+        {"$push": {"simulation_history": simulation_result}}
+    )
+
+    if update_result.modified_count == 0:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Portfolio not found or not authorized")
+    
+    return {"message": "Simulation saved successfully", "simulation": simulation_result}
+
+@router.post("/support/contact", response_description="Submit a contact message")
+async def submit_contact_message(
+    contact_data: Dict[str, Any] = Body(...)
+):
+    # En una aplicación real, esto enviaría un email o guardaría en una colección de soporte
+    print(f"Mensaje de contacto recibido: {contact_data}")
+    # Aquí podrías guardar en DB: db.contact_messages.insert_one(contact_data)
+    return {"message": "Mensaje de contacto recibido con éxito."}
+
+@router.get("/news", response_description="Get financial news")
+async def get_news():
+    # Mock de noticias. En una implementación real, se integraría con una API de noticias.
+    mock_news = [
+        {
+            "id": "1",
+            "source": "Bloomberg",
+            "title": "Mercados Globales Reaccionan a Nuevas Políticas Económicas",
+            "summary": "Analistas observan con cautela los movimientos en las principales bolsas tras los anuncios de la Reserva Federal.",
+            "date": "2023-10-26T10:00:00Z"
+        },
+        {
+            "id": "2",
+            "source": "Reuters",
+            "title": "Innovación en IA Impulsa Acciones Tecnológicas",
+            "summary": "El sector tecnológico muestra un fuerte crecimiento impulsado por avances en inteligencia artificial y semiconductores.",
+            "date": "2023-10-26T09:30:00Z"
+        },
+        {
+            "id": "3",
+            "source": "Financial Times",
+            "title": "El Futuro de las Inversiones Sostenibles",
+            "summary": "Cada vez más inversores buscan oportunidades en empresas con sólidos criterios ESG (Ambientales, Sociales y de Gobernanza).",
+            "date": "2023-10-25T15:00:00Z"
+        }
+    ]
+    return mock_news
+
+@router.post("/ai/explain", response_description="Get AI explanation for a concept")
+async def get_ai_explanation(concept_data: Dict[str, str] = Body(...)):
+    concept = concept_data.get("concept")
+    if not concept:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Concept is required")
+    
+    explanation = explain_concept(concept)
+    return {"concept": concept, "explanation": explanation}
