@@ -1,12 +1,13 @@
 from fastapi import APIRouter, Body, Depends, HTTPException, status
 from typing import Annotated, Dict, Any, List
+from datetime import datetime
+from bson import ObjectId
 from app.database import db
 from app.models.user import User
-from app.models.portfolio import Portfolio
+from app.models.portfolio import Portfolio, PortfolioCreate
 from app.routes.auth import get_current_user
 from app.services.optimizer_service import generate_portfolio
-from app.services.gemini_service import generate_portfolio_prompt, explain_concept
-from bson import ObjectId
+from app.services.gemini_service import explain_concept
 
 router = APIRouter()
 
@@ -33,15 +34,20 @@ async def optimize_portfolio(
     #     optimized_portfolio["assets"] = gemini_portfolio_response["assets"]
     #     optimized_portfolio["metrics"] = gemini_portfolio_response["metrics"]
 
-    new_portfolio = Portfolio(
+    # Usar PortfolioCreate para la creación inicial
+    new_portfolio_data = PortfolioCreate(
         user_id=user_id,
         assets=optimized_portfolio["assets"],
         metrics=optimized_portfolio["metrics"]
     )
     
     # Guardar el portafolio en la base de datos
-    inserted_portfolio = db.portfolios.insert_one(new_portfolio.dict(by_alias=True, exclude_unset=True))
+    inserted_portfolio = db.portfolios.insert_one(new_portfolio_data.model_dump(by_alias=True, exclude_unset=True))
     created_portfolio = db.portfolios.find_one({"_id": inserted_portfolio.inserted_id})
+    
+    # Convertir ObjectId a string para poder serializar la respuesta
+    if created_portfolio and "_id" in created_portfolio:
+        created_portfolio["_id"] = str(created_portfolio["_id"])
     
     return created_portfolio
 

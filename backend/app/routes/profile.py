@@ -3,6 +3,7 @@ from typing import Annotated, Dict, Any
 from app.database import db
 from app.models.user import User
 from app.routes.auth import get_current_user
+from bson import ObjectId # Import ObjectId
 
 router = APIRouter()
 
@@ -13,7 +14,7 @@ async def save_risk_profile(
 ):
     user_id = str(current_user["_id"])
     update_result = db.users.update_one(
-        {"_id": user_id},
+        {"_id": ObjectId(user_id)}, # Convert user_id string to ObjectId
         {"$set": {
             "risk_profile_answers": risk_profile_data.get("risk_profile_answers"),
             "country": risk_profile_data.get("country"),

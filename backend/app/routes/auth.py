@@ -8,7 +8,8 @@ from pydantic import BaseModel, EmailStr
 from app.models.user import User
 from app.database import db
 from app.utils.jwt_handler import signJWT, decodeJWT
-from bson import ObjectId # Import ObjectId
+from bson import ObjectId
+from bson.errors import InvalidId
 
 import bcrypt
 
@@ -81,6 +82,9 @@ async def user_login(user_credentials: Dict[str, str] = Body(...)):
         return signJWT(str(user["_id"]))
     raise HTTPException(status_code=401, detail="Invalid credentials")
 
-@router.get("/me", response_description="Get current user", response_model=User)
+@router.get("/me", response_description="Get current user")
 async def get_me(current_user: Annotated[User, Depends(get_current_user)]):
-    return current_user
+    # Convertir ObjectId a string para la respuesta
+    user_dict = dict(current_user)
+    user_dict["_id"] = str(user_dict["_id"])
+    return user_dict

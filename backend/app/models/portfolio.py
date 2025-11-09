@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field
 from typing import List, Dict, Any, Optional
 from datetime import datetime
+from pydantic_extra_types.mongo_object_id import MongoObjectId # Import MongoObjectId
 
 class Asset(BaseModel):
     ticker: str
@@ -9,16 +10,23 @@ class Asset(BaseModel):
     reason: Optional[str] = None
 
 class Portfolio(BaseModel):
-    id: Optional[str] = Field(alias="_id")
+    id: Optional[MongoObjectId] = Field(alias="_id") # Use MongoObjectId
     user_id: str
     generated_at: datetime = Field(default_factory=datetime.utcnow)
     assets: List[Asset]
     metrics: Dict[str, Any]
     simulation_history: Optional[List[Dict[str, Any]]] = None
 
-    class Config:
-        allow_population_by_field_name = True
-        schema_extra = {
+class PortfolioCreate(BaseModel):
+    user_id: str
+    generated_at: datetime = Field(default_factory=datetime.utcnow)
+    assets: List[Asset]
+    metrics: Dict[str, Any]
+    simulation_history: Optional[List[Dict[str, Any]]] = None
+
+    model_config = {
+        "populate_by_name": True,
+        "json_schema_extra": {
             "example": {
                 "user_id": "60d0fe4f531123616a531123",
                 "assets": [
@@ -28,3 +36,4 @@ class Portfolio(BaseModel):
                 "metrics": {"expected_return": 0.12, "risk": 0.08}
             }
         }
+    }
