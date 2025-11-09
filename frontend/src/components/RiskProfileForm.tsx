@@ -1,18 +1,25 @@
+// Componente de formulario de perfil de riesgo
 import React, { useState } from 'react';
 import { optimizePortfolio, saveRiskProfile } from '../services/api';
 import { useNavigate } from 'react-router-dom';
 
+// Props del componente
 interface RiskProfileFormProps {
   onPortfolioGenerated: (portfolio: any) => void;
 }
 
 const RiskProfileForm: React.FC<RiskProfileFormProps> = ({ onPortfolioGenerated }) => {
   const navigate = useNavigate();
+  // Estado para controlar qué pregunta se muestra
   const [currentQuestion, setCurrentQuestion] = useState(0);
+  // Estado para almacenar las respuestas del usuario
   const [answers, setAnswers] = useState<any>({});
+  // Estado para mostrar carga
   const [loading, setLoading] = useState(false);
+  // Estado para mostrar errores
   const [error, setError] = useState<string | null>(null);
 
+  // Lista de preguntas del cuestionario
   const questions = [
     {
       id: "country",
@@ -59,53 +66,60 @@ const RiskProfileForm: React.FC<RiskProfileFormProps> = ({ onPortfolioGenerated 
     }
   ];
 
+  // Función para actualizar las respuestas cuando el usuario cambia un campo
   const handleAnswerChange = (questionId: string, value: any) => {
     setAnswers({ ...answers, [questionId]: value });
   };
 
+  // Función para avanzar a la siguiente pregunta
   const handleNext = () => {
     if (currentQuestion < questions.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
     }
   };
 
+  // Función para retroceder a la pregunta anterior
   const handleBack = () => {
     if (currentQuestion > 0) {
       setCurrentQuestion(currentQuestion - 1);
     }
   };
 
+  // Función para enviar el formulario y generar el portafolio
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
 
-    const userId = localStorage.getItem('user_id'); // Asume que el user_id se guarda en localStorage al loguearse
+    const userId = localStorage.getItem('user_id');
     if (!userId) {
-      setError("User not logged in.");
+      setError("Usuario no autenticado. Por favor, inicia sesión.");
       setLoading(false);
       return;
     }
 
     const riskProfileData = {
-      risk_profile_answers: answers, // Guardar todas las respuestas
+      risk_profile_answers: answers,
       country: answers.country,
       experience_level: answers.experience_level,
       investment_goal: answers.investment_goal,
-      risk_level: answers.risk_tolerance, // Mapear a risk_level para el backend
+      risk_level: answers.risk_tolerance,
       preferences: { amount: parseFloat(answers.investment_amount) }
     };
 
     try {
-      // Primero, guardar el perfil de riesgo
+      // Guardar el perfil de riesgo
       await saveRiskProfile(riskProfileData);
 
-      // Luego, optimizar el portafolio
+      // Optimizar el portafolio
       const portfolioResponse = await optimizePortfolio(riskProfileData);
       onPortfolioGenerated(portfolioResponse.data);
-      navigate('/dashboard/overview'); // Redirigir al dashboard
+      
+      // Redirigir al dashboard sin mostrar alerta
+      navigate('/dashboard/overview');
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Error al generar el portafolio.');
+      setError(err.response?.data?.detail || 'Error al generar el portafolio. Por favor, intenta de nuevo.');
+      console.error('Error generando portafolio:', err);
     } finally {
       setLoading(false);
     }
@@ -132,6 +146,12 @@ const RiskProfileForm: React.FC<RiskProfileFormProps> = ({ onPortfolioGenerated 
                   placeholder={currentQ.placeholder}
                   value={answers[currentQ.id] || ''}
                   onChange={(e) => handleAnswerChange(currentQ.id, e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      if (answers[currentQ.id]) handleNext();
+                    }
+                  }}
                   required
                 />
               )
@@ -144,6 +164,14 @@ const RiskProfileForm: React.FC<RiskProfileFormProps> = ({ onPortfolioGenerated 
                   placeholder={currentQ.placeholder}
                   value={answers[currentQ.id] || ''}
                   onChange={(e) => handleAnswerChange(currentQ.id, e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      if (currentQuestion < questions.length - 1 && answers[currentQ.id]) {
+                        handleNext();
+                      }
+                    }
+                  }}
                   required
                 />
               )
