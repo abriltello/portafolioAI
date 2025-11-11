@@ -19,10 +19,6 @@ function App() {
   const [portfolio, setPortfolio] = useState<any>(null);
   // Estado para mostrar carga
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  // Estado para errores
-  const [error, setError] = useState<string | null>(null);
-  // Estado para saber si debe redirigir al cuestionario después de login
-  const [shouldRedirectToQuestionnaire, setShouldRedirectToQuestionnaire] = useState<boolean>(false);
 
   // Función para obtener el portafolio del usuario desde el backend
   const fetchPortfolio = useCallback(async () => {
@@ -62,7 +58,6 @@ function App() {
   const handleLoginSuccess = async (source: 'login' | 'register') => {
     setIsAuthenticated(true);
     setIsAuthModalOpen(false);
-    setShouldRedirectToQuestionnaire(false);
 
     if (source === 'register') {
       // Registro: siempre ir al cuestionario
@@ -107,7 +102,6 @@ function App() {
 
   // Función para abrir el modal de autenticación y luego ir al cuestionario
   const handleOpenAuthModalForQuestionnaire = () => {
-    setShouldRedirectToQuestionnaire(true);
     setAuthModalMode('register');
     setIsAuthModalOpen(true);
   };

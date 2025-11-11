@@ -238,6 +238,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess, 
             disabled={loading}
           >
             {loading ? 'Cargando...' : (isRegister ? 'Registrarse' : 'Entrar')}
+          </button>
+        </form>
+
         {/* Alternar login/registro */}
         <div className="mt-7 text-center">
           <p className="text-xs text-gray-400">
