@@ -34,11 +34,20 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout, portfolio }) => {
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-100">
+    <div className="flex min-h-screen bg-[#0f1419] relative">
+      {/* Fondo con efecto de circuitos */}
+      <div className="fixed inset-0 z-0 opacity-20">
+        <div className="absolute inset-0 bg-gradient-to-br from-teal-900/20 via-transparent to-amber-900/20"></div>
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(20,184,166,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(20,184,166,0.03)_1px,transparent_1px)] bg-[size:50px_50px]"></div>
+      </div>
+
+      {/* Sidebar */}
       <Sidebar activePage={activePage} setActivePage={setActivePage} onLogout={onLogout} />
-      <div className="flex-1 flex flex-col">
-        <header className="bg-white shadow-sm p-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-slate-900">{getPageTitle(activePage)}</h1>
+      
+      {/* Main Content con margen para el Sidebar */}
+      <div className="flex-1 flex flex-col ml-72 relative z-10">
+        <header className="bg-gray-900/50 backdrop-blur-sm shadow-lg p-4 flex justify-between items-center border-b border-gray-800">
+          <h1 className="text-2xl font-bold text-white">{getPageTitle(activePage)}</h1>
           {/* Aquí podrías añadir elementos del header como notificaciones o perfil de usuario */}
         </header>
         <main className="flex-1 p-6 overflow-y-auto">

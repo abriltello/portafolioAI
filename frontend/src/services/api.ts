@@ -23,6 +23,26 @@ api.interceptors.request.use(
   }
 );
 
+// Interceptor para manejar respuestas y errores 401
+api.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    // Si recibimos un 401, limpiar el token automáticamente
+    if (error.response?.status === 401) {
+      console.log("Token inválido o expirado. Limpiando localStorage...");
+      removeAuthToken();
+      localStorage.removeItem('user_id');
+      // Si estamos en una ruta protegida, redirigir al home
+      if (window.location.pathname !== '/') {
+        window.location.href = '/';
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
 export const setAuthToken = (token: string) => {
   localStorage.setItem('token', token);
 };
