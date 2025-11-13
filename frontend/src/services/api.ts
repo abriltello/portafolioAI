@@ -73,4 +73,7 @@ export const fetchNews = () => api.get('/news');
 // Funciones de IA
 export const getAIExplanation = (concept: string) => api.post('/ai/explain', { concept });
 
+// Funciones de datos de acciones
+export const fetchStockData = (tickers: string[]) => api.post('/stock-data', { tickers });
+
 export default api;

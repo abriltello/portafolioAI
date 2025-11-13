@@ -2,7 +2,7 @@
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
-from app.routes import auth, portfolio, profile
+from app.routes import auth, portfolio, profile, stocks
 
 app = FastAPI(
     title="PortafolioAI API",
@@ -23,6 +23,7 @@ app.add_middleware(
 app.include_router(auth.router, prefix="/api/auth", tags=["Autenticación"])
 app.include_router(profile.router, prefix="/api", tags=["Perfil de Riesgo"])
 app.include_router(portfolio.router, prefix="/api", tags=["Portafolio"])
+app.include_router(stocks.router, prefix="/api", tags=["Datos de Acciones"])
 
 @app.get("/test", tags=["Test"])
 async def test_endpoint():
