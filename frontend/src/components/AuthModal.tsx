@@ -1,8 +1,8 @@
 // Componente de autenticación simple
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { loginUser, registerUser } from '../services/api';
+import { FaUser, FaEnvelope, FaLock, FaGoogle, FaGithub, FaTimes } from 'react-icons/fa';
 
-// Props para el modal de autenticación
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -10,169 +10,271 @@ interface AuthModalProps {
   initialMode?: 'login' | 'register';
 }
 
-// Modal de autenticación para login y registro
 const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess, initialMode = 'login' }) => {
-  // Estado para alternar entre registro y login (inicializa según initialMode)
   const [isRegister, setIsRegister] = useState(initialMode === 'register');
-  // Estado para los campos del formulario
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
-  // Estado para mostrar errores
   const [error, setError] = useState<string | null>(null);
-  // Estado para mostrar carga
   const [loading, setLoading] = useState<boolean>(false);
-  // Estado para mostrar éxito en registro
   const [registerSuccess, setRegisterSuccess] = useState(false);
+  const [touched, setTouched] = useState<{ email: boolean; password: boolean; name: boolean }>({ email: false, password: false, name: false });
+  const modalRef = useRef<HTMLDivElement>(null);
 
-  // Actualizar el modo cuando cambia initialMode
   useEffect(() => {
     setIsRegister(initialMode === 'register');
+    setError(null);
+    setRegisterSuccess(false);
+    setEmail('');
+    setPassword('');
+    setName('');
+    setTouched({ email: false, password: false, name: false });
   }, [initialMode, isOpen]);
 
-  // Si el modal no está abierto, no renderizar nada
+  useEffect(() => {
+    if (isOpen && modalRef.current) {
+      modalRef.current.focus();
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
-  // Maneja el envío del formulario
+  // Validaciones básicas
+  const validateEmail = (value: string) => /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(value);
+  const validatePassword = (value: string) => value.length >= 6;
+  const validateName = (value: string) => value.length >= 2;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
+    // Validaciones front
+    if (!validateEmail(email)) {
+      setError('Correo electrónico inválido');
+      setLoading(false);
+      return;
+    }
+    if (!validatePassword(password)) {
+      setError('La contraseña debe tener al menos 6 caracteres');
+      setLoading(false);
+      return;
+    }
+    if (isRegister && !validateName(name)) {
+      setError('El nombre debe tener al menos 2 caracteres');
+      setLoading(false);
+      return;
+    }
     try {
       if (isRegister) {
-        // Registro de usuario
         await registerUser({ name, email, password });
-        // Después del registro, hacer login automático
         const loginResponse = await loginUser({ email, password });
         localStorage.setItem('token', loginResponse.data.access_token);
-        // Decodificar el token para obtener el user_id
         const decodedToken = JSON.parse(atob(loginResponse.data.access_token.split('.')[1]));
         localStorage.setItem('user_id', decodedToken.user_id);
+        setRegisterSuccess(true);
         onLoginSuccess('register');
       } else {
-        // Login de usuario
         const response = await loginUser({ email, password });
         localStorage.setItem('token', response.data.access_token);
-        // Decodificar el token para obtener el user_id
         const decodedToken = JSON.parse(atob(response.data.access_token.split('.')[1]));
         localStorage.setItem('user_id', decodedToken.user_id);
         onLoginSuccess('login');
       }
     } catch (err: any) {
-      // Mostrar error si ocurre
       setError(err.response?.data?.detail || 'Ocurrió un error');
     } finally {
       setLoading(false);
     }
   };
 
-  // Render del modal
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex justify-center items-center">
-      <div className="relative p-8 bg-white rounded-lg shadow-xl max-w-md w-full animate-fade-in">
-        {/* Botón para cerrar el modal */}
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center"
+      tabIndex={-1}
+      aria-modal="true"
+      role="dialog"
+      ref={modalRef}
+    >
+      {/* Fondo de circuitos tecnológicos */}
+      <div className="absolute inset-0 bg-[#0a0e14]">
+        {/* Gradiente base */}
+        <div className="absolute inset-0 bg-gradient-to-br from-teal-900/40 via-[#0a0e14] to-amber-900/30"></div>
+        
+        {/* Grid de circuitos */}
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(20,184,166,0.15)_1px,transparent_1px),linear-gradient(90deg,rgba(20,184,166,0.15)_1px,transparent_1px)] bg-[size:80px_80px]"></div>
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(245,158,11,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(245,158,11,0.08)_1px,transparent_1px)] bg-[size:40px_40px]"></div>
+        </div>
+        
+        {/* Puntos de conexión animados */}
+        <div className="absolute top-32 left-32 w-2 h-2 bg-teal-400 rounded-full animate-pulse-slow shadow-[0_0_15px_rgba(20,184,166,0.6)]"></div>
+        <div className="absolute top-64 right-40 w-2 h-2 bg-amber-400 rounded-full animate-pulse-slower shadow-[0_0_15px_rgba(245,158,11,0.6)]"></div>
+        <div className="absolute bottom-40 left-48 w-2 h-2 bg-cyan-400 rounded-full animate-pulse shadow-[0_0_15px_rgba(6,182,212,0.6)]"></div>
+        <div className="absolute bottom-32 right-32 w-2 h-2 bg-teal-400 rounded-full animate-pulse-slow shadow-[0_0_15px_rgba(20,184,166,0.6)]"></div>
+        
+        {/* Líneas de circuito SVG */}
+        <svg className="absolute inset-0 w-full h-full opacity-40" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="circuitGrad1" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="rgba(20,184,166,0)" />
+              <stop offset="50%" stopColor="rgba(20,184,166,0.4)" />
+              <stop offset="100%" stopColor="rgba(20,184,166,0)" />
+            </linearGradient>
+            <linearGradient id="circuitGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="rgba(245,158,11,0)" />
+              <stop offset="50%" stopColor="rgba(245,158,11,0.3)" />
+              <stop offset="100%" stopColor="rgba(245,158,11,0)" />
+            </linearGradient>
+          </defs>
+          <path d="M 150 250 L 500 250 L 500 450 L 850 450" stroke="url(#circuitGrad1)" strokeWidth="2" fill="none" />
+          <path d="M 950 150 L 700 350 L 400 350 L 150 650" stroke="url(#circuitGrad2)" strokeWidth="2" fill="none" />
+          <path d="M 1100 550 L 850 650 L 500 650 L 250 850" stroke="url(#circuitGrad1)" strokeWidth="2" fill="none" />
+          <circle cx="500" cy="250" r="4" fill="#14b8a6" opacity="0.6" />
+          <circle cx="850" cy="450" r="4" fill="#f59e0b" opacity="0.6" />
+          <circle cx="400" cy="350" r="4" fill="#06b6d4" opacity="0.6" />
+        </svg>
+        
+        {/* Orbes de luz difusa */}
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-1/3 right-1/4 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl"></div>
+        
+        {/* Overlay para mejor contraste del modal */}
+        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm"></div>
+      </div>
+
+      {/* Modal Card */}
+      <div className="relative bg-gray-900/95 backdrop-blur-md rounded-2xl shadow-2xl max-w-md w-full px-8 py-10 animate-fade-in border border-teal-500/30">
+        {/* Botón cerrar */}
         <button
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl"
+          className="absolute top-4 right-4 text-gray-400 hover:text-teal-400 text-2xl focus:outline-none transition-colors duration-200"
           onClick={onClose}
+          aria-label="Cerrar"
         >
-          &times;
+          <FaTimes />
         </button>
-        {/* Título del modal */}
-        <h2 className="text-2xl font-bold text-slate-900 mb-6 text-center">
-          {isRegister ? 'Regístrate' : 'Inicia Sesión'}
+        {/* Título */}
+        <h2 className="text-3xl font-bold text-white mb-7 text-center tracking-tight">
+          {isRegister ? 'Crear cuenta' : 'Iniciar sesión'}
         </h2>
 
-        {/* Mensaje de éxito tras el registro */}
+        {/* Mensaje de éxito tras registro */}
         {registerSuccess && (
-          <div className="mb-4 p-3 bg-green-100 text-green-700 rounded-lg text-center">
-            Registro exitoso. Ahora puedes iniciar sesión con tu correo y contraseña.
+          <div className="mb-4 p-3 bg-teal-900/50 text-teal-300 rounded-lg text-center text-sm border border-teal-500/30">
+            Registro exitoso. ¡Bienvenido!
           </div>
         )}
 
-        {/* Formulario de login/registro */}
-        <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Formulario */}
+        <form onSubmit={handleSubmit} className="space-y-5" autoComplete="off">
           {isRegister && (
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-slate-700">Nombre</label>
-              <input
-                type="text"
-                id="name"
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required
-              />
+              <label htmlFor="name" className="block text-xs font-semibold text-gray-300 mb-1">Nombre</label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-teal-400"><FaUser /></span>
+                <input
+                  type="text"
+                  id="name"
+                  className={`pl-9 pr-3 py-2 w-full bg-gray-800/50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-white placeholder-gray-500 ${touched.name && !validateName(name) ? 'border-red-400' : 'border-gray-700'}`}
+                  value={name}
+                  onChange={e => { setName(e.target.value); setTouched(t => ({ ...t, name: true })); }}
+                  required
+                  minLength={2}
+                  autoFocus={isRegister}
+                  placeholder="Tu nombre"
+                />
+              </div>
+              {touched.name && !validateName(name) && (
+                <span className="text-xs text-red-400">El nombre debe tener al menos 2 caracteres</span>
+              )}
             </div>
           )}
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-slate-700">Correo Electrónico</label>
-            <input
-              type="email"
-              id="email"
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
+            <label htmlFor="email" className="block text-xs font-semibold text-gray-300 mb-1">Correo electrónico</label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-teal-400"><FaEnvelope /></span>
+              <input
+                type="email"
+                id="email"
+                className={`pl-9 pr-3 py-2 w-full bg-gray-800/50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-white placeholder-gray-500 ${touched.email && !validateEmail(email) ? 'border-red-400' : 'border-gray-700'}`}
+                value={email}
+                onChange={e => { setEmail(e.target.value); setTouched(t => ({ ...t, email: true })); }}
+                required
+                autoFocus={!isRegister}
+                placeholder="correo@ejemplo.com"
+              />
+            </div>
+            {touched.email && !validateEmail(email) && (
+              <span className="text-xs text-red-400">Correo electrónico inválido</span>
+            )}
           </div>
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-slate-700">Contraseña</label>
-            <input
-              type="password"
-              id="password"
-              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            {/* En login, mostrar enlace para recuperar contraseña */}
+            <label htmlFor="password" className="block text-xs font-semibold text-gray-300 mb-1">Contraseña</label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-teal-400"><FaLock /></span>
+              <input
+                type="password"
+                id="password"
+                className={`pl-9 pr-3 py-2 w-full bg-gray-800/50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 text-white placeholder-gray-500 ${touched.password && !validatePassword(password) ? 'border-red-400' : 'border-gray-700'}`}
+                value={password}
+                onChange={e => { setPassword(e.target.value); setTouched(t => ({ ...t, password: true })); }}
+                required
+                minLength={6}
+                placeholder="Mínimo 6 caracteres"
+              />
+            </div>
+            {touched.password && !validatePassword(password) && (
+              <span className="text-xs text-red-400">La contraseña debe tener al menos 6 caracteres</span>
+            )}
             {!isRegister && (
               <div className="text-right mt-1">
-                <a href="#" className="text-sm text-blue-600 hover:text-blue-800">¿Olvidaste tu contraseña?</a>
+                <a href="#" className="text-xs text-teal-400 hover:text-teal-300">¿Olvidaste tu contraseña?</a>
               </div>
             )}
           </div>
-
-          {/* Mostrar error si existe */}
-          {error && <p className="text-red-500 text-sm">{error}</p>}
-
-          {/* Botón para enviar el formulario */}
+          {error && <p className="text-red-400 text-xs text-center bg-red-900/20 border border-red-500/30 rounded-lg py-2">{error}</p>}
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-300 disabled:opacity-50"
+            className="w-full bg-teal-600 text-white font-bold py-3 rounded-lg hover:bg-teal-700 transition duration-200 disabled:opacity-50 shadow-lg shadow-teal-900/50"
             disabled={loading}
           >
-            {loading ? 'Cargando...' : (isRegister ? 'Registrarse' : 'Iniciar Sesión')}
+            {loading ? 'Cargando...' : (isRegister ? 'Registrarse' : 'Entrar')}
           </button>
         </form>
 
-        {/* Alternar entre login y registro */}
-        <div className="mt-6 text-center">
-          <p className="text-sm text-slate-600">
-            {isRegister ? '¿Ya tienes una cuenta?' : '¿No tienes una cuenta?'}{' '}
+        {/* Alternar login/registro */}
+        <div className="mt-7 text-center">
+          <p className="text-xs text-gray-400">
+            {isRegister ? '¿Ya tienes cuenta?' : '¿No tienes cuenta?'}{' '}
             <button
               onClick={() => setIsRegister(!isRegister)}
-              className="text-blue-600 hover:text-blue-800 font-medium"
+              className="text-teal-400 hover:text-teal-300 font-semibold underline"
             >
-              {isRegister ? 'Inicia Sesión' : 'Regístrate'}
+              {isRegister ? 'Inicia sesión' : 'Regístrate'}
             </button>
           </p>
         </div>
 
-        {/* Botones sociales (no funcionales) */}
-        <div className="mt-6 border-t border-gray-200 pt-6 space-y-3">
-          <button className="w-full flex items-center justify-center bg-white border border-gray-300 text-slate-700 py-2 px-4 rounded-lg shadow-sm hover:bg-gray-50 transition duration-300">
-            <img src="https://img.icons8.com/color/16/000000/google-logo.png" alt="Google" className="mr-2" />
-            Continuar con Google
+        {/* Social login (placeholder) */}
+        <div className="mt-7 border-t border-gray-700 pt-6 grid gap-3">
+          <button
+            type="button"
+            className="w-full flex items-center justify-center bg-gray-800/50 border border-gray-700 text-gray-300 py-2 rounded-lg shadow-sm hover:bg-gray-700/50 transition duration-200 gap-2"
+            disabled
+            aria-disabled="true"
+          >
+            <FaGoogle className="text-lg" /> Continuar con Google
           </button>
-          <button className="w-full flex items-center justify-center bg-white border border-gray-300 text-slate-700 py-2 px-4 rounded-lg shadow-sm hover:bg-gray-50 transition duration-300">
-            <img src="https://img.icons8.com/ios-glyphs/16/000000/github.png" alt="GitHub" className="mr-2" />
-            Continuar con GitHub
+          <button
+            type="button"
+            className="w-full flex items-center justify-center bg-gray-800/50 border border-gray-700 text-gray-300 py-2 rounded-lg shadow-sm hover:bg-gray-700/50 transition duration-200 gap-2"
+            disabled
+            aria-disabled="true"
+          >
+            <FaGithub className="text-lg" /> Continuar con GitHub
           </button>
         </div>
       </div>
     </div>
   );
 };
-
 export default AuthModal;

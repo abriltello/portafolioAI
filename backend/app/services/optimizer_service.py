@@ -6,6 +6,30 @@ import pandas as pd
 # from pypfopt import risk_models
 # from pypfopt import expected_returns
 
+# Mapeo de tickers de referencia a tickers reales de Yahoo Finance
+TICKER_MAPPING = {
+    "BONO_ESTABLE": "TLT",  # iShares 20+ Year Treasury Bond ETF
+    "CEDEAR_CONSERVADOR": "JNJ",  # Johnson & Johnson (empresa estable)
+    "CEDEAR_MODERADO": "MSFT",  # Microsoft (empresa mediana-grande)
+    "BONO_DESARROLLO": "EMB",  # iShares J.P. Morgan USD Emerging Markets Bond ETF
+    "ETF_GLOBAL": "VT",  # Vanguard Total World Stock ETF
+    "ACCION_ALTO_CRECIMIENTO": "NVDA",  # NVIDIA (tecnología alto crecimiento)
+    "CRYPTO_INNOVACION": "BTC-USD",  # Bitcoin
+    "COMMODITY_ESPECULATIVO": "GLD"  # SPDR Gold Trust (oro)
+}
+
+# Nombres descriptivos para cada activo
+ASSET_NAMES = {
+    "TLT": "iShares 20+ Year Treasury Bond ETF",
+    "JNJ": "Johnson & Johnson",
+    "MSFT": "Microsoft Corporation",
+    "EMB": "iShares Emerging Markets Bond ETF",
+    "VT": "Vanguard Total World Stock ETF",
+    "NVDA": "NVIDIA Corporation",
+    "BTC-USD": "Bitcoin USD",
+    "GLD": "SPDR Gold Trust"
+}
+
 def generate_portfolio(user_profile: Dict[str, Any], preferences: Dict[str, Any]) -> Dict[str, Any]:
     """
     Genera un portafolio de inversión basado en el perfil de usuario y preferencias.
@@ -20,24 +44,64 @@ def generate_portfolio(user_profile: Dict[str, Any], preferences: Dict[str, Any]
 
     if risk_level == "low":
         portfolio_assets = [
-            {"ticker": "BONO_ESTABLE", "name": "Bono de Gobierno Estable", "allocation_pct": 60.0, "reason": "Inversión de bajo riesgo y renta fija."},
-            {"ticker": "CEDEAR_CONSERVADOR", "name": "CEDEAR Empresa Grande", "allocation_pct": 40.0, "reason": "Exposición a empresas sólidas con menor volatilidad."}
+            {
+                "ticker": TICKER_MAPPING["BONO_ESTABLE"], 
+                "name": ASSET_NAMES[TICKER_MAPPING["BONO_ESTABLE"]], 
+                "allocation_pct": 60.0, 
+                "reason": "Inversión de bajo riesgo en bonos del tesoro estadounidense a largo plazo."
+            },
+            {
+                "ticker": TICKER_MAPPING["CEDEAR_CONSERVADOR"], 
+                "name": ASSET_NAMES[TICKER_MAPPING["CEDEAR_CONSERVADOR"]], 
+                "allocation_pct": 40.0, 
+                "reason": "Exposición a empresa farmacéutica estable con dividendos consistentes."
+            }
         ]
         expected_return = 0.05
         risk = 0.03
     elif risk_level == "medium":
         portfolio_assets = [
-            {"ticker": "CEDEAR_MODERADO", "name": "CEDEAR Empresa Mediana", "allocation_pct": 50.0, "reason": "Balance entre crecimiento y estabilidad."},
-            {"ticker": "BONO_DESARROLLO", "name": "Bono de Desarrollo", "allocation_pct": 30.0, "reason": "Renta fija con potencial de crecimiento."},
-            {"ticker": "ETF_GLOBAL", "name": "ETF Global Diversificado", "allocation_pct": 20.0, "reason": "Diversificación internacional."}
+            {
+                "ticker": TICKER_MAPPING["CEDEAR_MODERADO"], 
+                "name": ASSET_NAMES[TICKER_MAPPING["CEDEAR_MODERADO"]], 
+                "allocation_pct": 50.0, 
+                "reason": "Balance entre crecimiento y estabilidad con líder tecnológico."
+            },
+            {
+                "ticker": TICKER_MAPPING["BONO_DESARROLLO"], 
+                "name": ASSET_NAMES[TICKER_MAPPING["BONO_DESARROLLO"]], 
+                "allocation_pct": 30.0, 
+                "reason": "Renta fija con exposición a mercados emergentes."
+            },
+            {
+                "ticker": TICKER_MAPPING["ETF_GLOBAL"], 
+                "name": ASSET_NAMES[TICKER_MAPPING["ETF_GLOBAL"]], 
+                "allocation_pct": 20.0, 
+                "reason": "Diversificación internacional con cobertura global."
+            }
         ]
         expected_return = 0.10
         risk = 0.08
     else: # high
         portfolio_assets = [
-            {"ticker": "ACCION_ALTO_CRECIMIENTO", "name": "Acción Tecnológica", "allocation_pct": 60.0, "reason": "Alto potencial de crecimiento y mayor riesgo."},
-            {"ticker": "CRYPTO_INNOVACION", "name": "Criptomoneda Innovadora", "allocation_pct": 20.0, "reason": "Exposición a activos de alta volatilidad."},
-            {"ticker": "COMMODITY_ESPECULATIVO", "name": "Fondo de Commodities", "allocation_pct": 20.0, "reason": "Cobertura y potencial de ganancias en mercados volátiles."}
+            {
+                "ticker": TICKER_MAPPING["ACCION_ALTO_CRECIMIENTO"], 
+                "name": ASSET_NAMES[TICKER_MAPPING["ACCION_ALTO_CRECIMIENTO"]], 
+                "allocation_pct": 60.0, 
+                "reason": "Alto potencial de crecimiento en sector tecnológico (IA y semiconductores)."
+            },
+            {
+                "ticker": TICKER_MAPPING["CRYPTO_INNOVACION"], 
+                "name": ASSET_NAMES[TICKER_MAPPING["CRYPTO_INNOVACION"]], 
+                "allocation_pct": 20.0, 
+                "reason": "Exposición a criptomoneda líder con alta volatilidad."
+            },
+            {
+                "ticker": TICKER_MAPPING["COMMODITY_ESPECULATIVO"], 
+                "name": ASSET_NAMES[TICKER_MAPPING["COMMODITY_ESPECULATIVO"]], 
+                "allocation_pct": 20.0, 
+                "reason": "Cobertura con oro físico y protección contra inflación."
+            }
         ]
         expected_return = 0.18
         risk = 0.15

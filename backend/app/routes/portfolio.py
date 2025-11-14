@@ -134,3 +134,68 @@ async def get_ai_explanation(concept_data: Dict[str, str] = Body(...)):
     
     explanation = explain_concept(concept)
     return {"concept": concept, "explanation": explanation}
+
+@router.post("/stock-data", response_description="Get real-time stock data from Yahoo Finance")
+async def get_stock_data(
+    current_user: Annotated[User, Depends(get_current_user)],
+    stock_data: Dict[str, Any] = Body(...)
+):
+    """
+    Obtiene datos en tiempo real de acciones desde Yahoo Finance.
+    Recibe una lista de tickers y retorna precios, nombres y métricas.
+    """
+    tickers = stock_data.get("tickers", [])
+    if not tickers:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Tickers list is required")
+    
+    try:
+        import yfinance as yf
+        
+        stock_info = []
+        for ticker in tickers:
+            try:
+                stock = yf.Ticker(ticker)
+                info = stock.info
+                
+                # Obtener precio actual
+                current_price = info.get('currentPrice') or info.get('regularMarketPrice') or info.get('previousClose', 0)
+                
+                # Obtener cambio del día
+                previous_close = info.get('previousClose', current_price)
+                price_change = current_price - previous_close
+                price_change_percent = (price_change / previous_close * 100) if previous_close else 0
+                
+                stock_info.append({
+                    "ticker": ticker,
+                    "name": info.get('longName') or info.get('shortName') or ticker,
+                    "current_price": round(current_price, 2),
+                    "previous_close": round(previous_close, 2),
+                    "price_change": round(price_change, 2),
+                    "price_change_percent": round(price_change_percent, 2),
+                    "currency": info.get('currency', 'USD'),
+                    "market_cap": info.get('marketCap'),
+                    "volume": info.get('volume'),
+                    "pe_ratio": info.get('trailingPE'),
+                    "dividend_yield": info.get('dividendYield')
+                })
+            except Exception as e:
+                # Si falla un ticker específico, agregar datos de error
+                stock_info.append({
+                    "ticker": ticker,
+                    "name": ticker,
+                    "current_price": 0,
+                    "error": str(e)
+                })
+        
+        return {"stocks": stock_info}
+    
+    except ImportError:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="yfinance library is not installed. Please install it with: pip install yfinance"
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error fetching stock data: {str(e)}"
+        )

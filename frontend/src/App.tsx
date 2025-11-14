@@ -1,10 +1,11 @@
 // Componente principal de la aplicación
-import React, { useState, useEffect, useCallback } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useCallback } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import AuthModal from './components/AuthModal';
 import Dashboard from './pages/Dashboard';
 import Home from './pages/Home';
 import RiskProfileForm from './components/RiskProfileForm';
+import AnimatedBackground from './components/AnimatedBackground';
 import { getAuthToken, removeAuthToken, fetchCurrentUser } from './services/api';
 
 function App() {
@@ -18,10 +19,6 @@ function App() {
   const [portfolio, setPortfolio] = useState<any>(null);
   // Estado para mostrar carga
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  // Estado para errores
-  const [error, setError] = useState<string | null>(null);
-  // Estado para saber si debe redirigir al cuestionario después de login
-  const [shouldRedirectToQuestionnaire, setShouldRedirectToQuestionnaire] = useState<boolean>(false);
 
   // Función para obtener el portafolio del usuario desde el backend
   const fetchPortfolio = useCallback(async () => {
@@ -34,9 +31,16 @@ function App() {
       } else {
         setPortfolio(null);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error fetching user portfolio:", err);
-      setError("Failed to load portfolio.");
+      // Si el error es 401 (Unauthorized), limpiar el token y cerrar sesión
+      if (err.response?.status === 401) {
+        console.log("Token inválido o expirado. Cerrando sesión...");
+        removeAuthToken();
+        setIsAuthenticated(false);
+        setPortfolio(null);
+        return;
+      }
       setPortfolio(null);
     } finally {
       setIsLoading(false);
@@ -54,7 +58,6 @@ function App() {
   const handleLoginSuccess = async (source: 'login' | 'register') => {
     setIsAuthenticated(true);
     setIsAuthModalOpen(false);
-    setShouldRedirectToQuestionnaire(false);
 
     if (source === 'register') {
       // Registro: siempre ir al cuestionario
@@ -71,8 +74,15 @@ function App() {
       } else {
         window.location.href = '/risk-profile-form';
       }
-    } catch (err) {
-      // Ante error, fallback al dashboard
+    } catch (err: any) {
+      // Si el error es 401, limpiar token y permanecer en home
+      if (err.response?.status === 401) {
+        console.error("Token inválido después del login:", err);
+        removeAuthToken();
+        setIsAuthenticated(false);
+        return;
+      }
+      // Ante otros errores, fallback al dashboard
       window.location.href = '/dashboard/overview';
     }
   };
@@ -92,7 +102,6 @@ function App() {
 
   // Función para abrir el modal de autenticación y luego ir al cuestionario
   const handleOpenAuthModalForQuestionnaire = () => {
-    setShouldRedirectToQuestionnaire(true);
     setAuthModalMode('register');
     setIsAuthModalOpen(true);
   };
@@ -111,7 +120,8 @@ function App() {
 
   return (
     <Router>
-      <div className="min-h-screen bg-slate-50 font-montserrat text-slate-600">
+      <div className="min-h-screen bg-[var(--color-primary-bg)] font-montserrat text-[var(--color-text-light)]">
+        <AnimatedBackground />
         <Routes>
           <Route path="/" element={
             <Home

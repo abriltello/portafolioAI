@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
 
 interface SidebarProps {
@@ -27,8 +27,8 @@ const Sidebar: React.FC<SidebarProps> = ({ activePage, setActivePage, onLogout }
   };
 
   return (
-    <div className="w-64 bg-white rounded-2xl shadow-lg p-6 flex flex-col fixed h-full m-4">
-      <div className="text-3xl font-bold text-blue-600 mb-8 text-center">PortafolioAI</div>
+    <div className="w-64 bg-gray-800 rounded-2xl shadow-2xl p-6 flex flex-col fixed h-full m-4 border border-gray-700">
+      <div className="text-3xl font-bold text-teal-400 mb-8 text-center">PortafolioAI</div>
       <nav className="flex-grow">
         <ul className="space-y-2">
           {navItems.map((item) => (
@@ -36,8 +36,8 @@ const Sidebar: React.FC<SidebarProps> = ({ activePage, setActivePage, onLogout }
               <button
                 onClick={() => handleNavigation(item.path)}
                 className={clsx(
-                  "w-full flex items-center p-3 rounded-lg text-slate-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200",
-                  activePage === item.path && "bg-blue-100 text-blue-700 font-semibold"
+                  "w-full flex items-center p-3 rounded-lg text-gray-300 hover:bg-gray-700 hover:text-teal-400 transition-colors duration-200",
+                  activePage === item.path && "bg-teal-600 text-white font-semibold"
                 )}
               >
                 <span className="mr-3 text-xl">{item.icon}</span>
@@ -50,7 +50,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activePage, setActivePage, onLogout }
       <div className="mt-8">
         <button
           onClick={onLogout}
-          className="w-full flex items-center p-3 rounded-lg text-red-600 hover:bg-red-50 transition-colors duration-200"
+          className="w-full flex items-center p-3 rounded-lg text-red-400 hover:bg-red-900/30 transition-colors duration-200"
         >
           <span className="mr-3 text-xl">➡️</span>
           Cerrar Sesión
