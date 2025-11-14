@@ -6,9 +6,10 @@ interface SidebarProps {
   activePage: string;
   setActivePage: (page: string) => void;
   onLogout: () => void;
+  isAdmin?: boolean;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ activePage, setActivePage, onLogout }) => {
+const Sidebar: React.FC<SidebarProps> = ({ activePage, setActivePage, onLogout, isAdmin }) => {
   const navigate = useNavigate();
 
   const navItems = [
@@ -47,6 +48,17 @@ const Sidebar: React.FC<SidebarProps> = ({ activePage, setActivePage, onLogout }
           ))}
         </ul>
       </nav>
+      {isAdmin && (
+        <div className="mb-4">
+          <button
+            onClick={() => navigate('/admin')}
+            className="w-full flex items-center p-3 rounded-lg text-blue-400 hover:bg-blue-900/30 transition-colors duration-200"
+          >
+            <span className="mr-3 text-xl">🛡️</span>
+            Panel Admin
+          </button>
+        </div>
+      )}
       <div className="mt-8">
         <button
           onClick={onLogout}

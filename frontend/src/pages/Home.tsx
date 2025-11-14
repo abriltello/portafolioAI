@@ -11,9 +11,10 @@ interface HomeProps {
   isAuthenticated: boolean;
   portfolio: any;
   isLoading: boolean;
+  isAdmin?: boolean;
 }
 
-const Home: React.FC<HomeProps> = ({ onOpenAuthModalLogin, onOpenAuthModalRegister, onOpenAuthModalForQuestionnaire, isAuthenticated, portfolio, isLoading }) => {
+const Home: React.FC<HomeProps> = ({ onOpenAuthModalLogin, onOpenAuthModalRegister, onOpenAuthModalForQuestionnaire, isAuthenticated, portfolio, isLoading, isAdmin }) => {
   const navigate = useNavigate();
 
   // Función para manejar el clic en el botón principal
@@ -48,7 +49,7 @@ const Home: React.FC<HomeProps> = ({ onOpenAuthModalLogin, onOpenAuthModalRegist
       {/* Header */}
       <header className="bg-gray-900 shadow-lg p-4 flex justify-between items-center border-b border-gray-800">
         <div className="text-2xl font-bold text-teal-400">PortafolioAI</div>
-        <nav className="flex gap-3">
+        <nav className="flex gap-3 items-center">
           <button
             onClick={onOpenAuthModalLogin}
             className="bg-transparent text-white border border-gray-600 font-semibold py-2 px-4 rounded-lg hover:bg-gray-800 hover:border-teal-500 transition duration-300"
@@ -61,6 +62,15 @@ const Home: React.FC<HomeProps> = ({ onOpenAuthModalLogin, onOpenAuthModalRegist
           >
             Registrarse
           </button>
+          {/* Botón de admin solo si es admin */}
+          {isAuthenticated && isAdmin && (
+            <button
+              onClick={() => navigate('/admin')}
+              className="bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-300 ml-2"
+            >
+              Panel Admin
+            </button>
+          )}
         </nav>
       </header>
 

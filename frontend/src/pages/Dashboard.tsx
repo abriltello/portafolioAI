@@ -12,9 +12,10 @@ import { Route, Routes, useLocation } from 'react-router-dom';
 interface DashboardProps {
   onLogout: () => void;
   portfolio: any;
+  isAdmin?: boolean;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ onLogout, portfolio }) => {
+const Dashboard: React.FC<DashboardProps> = ({ onLogout, portfolio, isAdmin }) => {
   const location = useLocation();
   const [activePage, setActivePage] = useState<string>(
     location.pathname.split('/')[2] || 'overview'
@@ -42,7 +43,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout, portfolio }) => {
       </div>
 
       {/* Sidebar */}
-      <Sidebar activePage={activePage} setActivePage={setActivePage} onLogout={onLogout} />
+      <Sidebar activePage={activePage} setActivePage={setActivePage} onLogout={onLogout} isAdmin={isAdmin} />
       
       {/* Main Content con margen para el Sidebar */}
       <div className="flex-1 flex flex-col ml-72 relative z-10">

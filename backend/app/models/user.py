@@ -12,6 +12,7 @@ class User(BaseModel):
     investment_goal: Optional[str] = None
     risk_profile_answers: Optional[dict] = None
     preferences: Optional[dict] = None
+    role: str = "user"  # Puede ser 'user' o 'admin'
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
     class Config:
@@ -25,6 +26,7 @@ class User(BaseModel):
                 "experience_level": "beginner",
                 "investment_goal": "ahorro para casa",
                 "risk_profile_answers": {"q1": "a", "q2": "b"},
-                "preferences": {"assets": ["acciones", "bonos"], "amount": 100000}
+                "preferences": {"assets": ["acciones", "bonos"], "amount": 100000},
+                "role": "admin"
             }
         }

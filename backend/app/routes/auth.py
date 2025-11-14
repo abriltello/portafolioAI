@@ -69,6 +69,7 @@ async def register_user(user_data: UserRegister = Body(...)):
         "name": user_data.name,
         "email": user_data.email,
         "password_hash": hashed_password,
+        "role": "user",  # Por defecto, usuario normal
         "created_at": datetime.utcnow()
     }
     new_user = db.users.insert_one(new_user_doc)
@@ -87,4 +88,7 @@ async def get_me(current_user: Annotated[User, Depends(get_current_user)]):
     # Convertir ObjectId a string para la respuesta
     user_dict = dict(current_user)
     user_dict["_id"] = str(user_dict["_id"])
+    # Asegurarse que el campo 'role' esté presente
+    if "role" not in user_dict:
+        user_dict["role"] = "user"
     return user_dict

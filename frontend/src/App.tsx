@@ -7,6 +7,15 @@ import Home from './pages/Home';
 import RiskProfileForm from './components/RiskProfileForm';
 import AnimatedBackground from './components/AnimatedBackground';
 import { getAuthToken, removeAuthToken, fetchCurrentUser } from './services/api';
+// Importar componentes de admin
+import AdminDashboard from './pages/Admin/AdminDashboard';
+import UserManagement from './pages/Admin/UserManagement';
+import PortfolioManagement from './pages/Admin/PortfolioManagement';
+import SimulationMonitor from './pages/Admin/SimulationMonitor';
+import ContentManager from './pages/Admin/ContentManager';
+import SupportMessages from './pages/Admin/SupportMessages';
+import SystemConfig from './pages/Admin/SystemConfig';
+import LogsAudit from './pages/Admin/LogsAudit';
 
 function App() {
   // Estado para controlar si el usuario está autenticado
@@ -19,18 +28,25 @@ function App() {
   const [portfolio, setPortfolio] = useState<any>(null);
   // Estado para mostrar carga
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  // Estado para saber si el usuario es admin
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
 
-  // Función para obtener el portafolio del usuario desde el backend
+  // Función para obtener el portafolio y rol del usuario desde el backend
   const fetchPortfolio = useCallback(async () => {
     if (!isAuthenticated) return;
     setIsLoading(true);
     try {
       const response = await fetchCurrentUser();
+      console.log('Respuesta de /auth/me:', response.data); // LOG para depuración
       if (response.data && response.data.portfolio) {
         setPortfolio(response.data.portfolio);
       } else {
         setPortfolio(null);
       }
+      // Verificar si el usuario es admin (ajusta según tu backend)
+      const isAdminUser = response.data?.role === 'admin';
+      setIsAdmin(isAdminUser);
+      console.log('Valor de isAdmin:', isAdminUser); // LOG para depuración
     } catch (err: any) {
       console.error("Error fetching user portfolio:", err);
       // Si el error es 401 (Unauthorized), limpiar el token y cerrar sesión
@@ -39,9 +55,11 @@ function App() {
         removeAuthToken();
         setIsAuthenticated(false);
         setPortfolio(null);
+        setIsAdmin(false);
         return;
       }
       setPortfolio(null);
+      setIsAdmin(false);
     } finally {
       setIsLoading(false);
     }
@@ -131,17 +149,27 @@ function App() {
               isAuthenticated={isAuthenticated}
               portfolio={portfolio}
               isLoading={isLoading}
+              isAdmin={isAdmin}
             />
           } />
           {/* Rutas protegidas que requieren autenticación */}
           <Route
             path="/dashboard/*"
-            element={isAuthenticated ? <Dashboard onLogout={handleLogout} portfolio={portfolio} /> : <Navigate to="/" />}
+            element={isAuthenticated ? <Dashboard onLogout={handleLogout} portfolio={portfolio} isAdmin={isAdmin} /> : <Navigate to="/" />}
           />
           <Route
             path="/risk-profile-form"
             element={isAuthenticated ? <RiskProfileForm onPortfolioGenerated={handlePortfolioGenerated} /> : <Navigate to="/" />}
           />
+          {/* Rutas de administración, solo para admin */}
+          <Route path="/admin" element={isAuthenticated && isAdmin ? <AdminDashboard /> : <Navigate to="/" />} />
+          <Route path="/admin/users" element={isAuthenticated && isAdmin ? <UserManagement /> : <Navigate to="/" />} />
+          <Route path="/admin/portfolios" element={isAuthenticated && isAdmin ? <PortfolioManagement /> : <Navigate to="/" />} />
+          <Route path="/admin/simulations" element={isAuthenticated && isAdmin ? <SimulationMonitor /> : <Navigate to="/" />} />
+          <Route path="/admin/content" element={isAuthenticated && isAdmin ? <ContentManager /> : <Navigate to="/" />} />
+          <Route path="/admin/support" element={isAuthenticated && isAdmin ? <SupportMessages /> : <Navigate to="/" />} />
+          <Route path="/admin/config" element={isAuthenticated && isAdmin ? <SystemConfig /> : <Navigate to="/" />} />
+          <Route path="/admin/logs" element={isAuthenticated && isAdmin ? <LogsAudit /> : <Navigate to="/" />} />
           {/* Otras rutas públicas o de error */}
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
