@@ -15,19 +15,65 @@ interface SimulationResult {
   sharpeRatio: number;
 }
 
+// Definición de tipos de activos con sus características
+interface AssetType {
+  id: string;
+  name: string;
+  ticker: string;
+  icon: string;
+  color: string;
+  expectedReturn: number;
+  volatility: number;
+  description: string;
+}
+
+const ASSET_TYPES: AssetType[] = [
+  {
+    id: 'tech',
+    name: 'Acción Tecnológica',
+    ticker: 'NVDA',
+    icon: 'fa-microchip',
+    color: 'teal',
+    expectedReturn: 0.25,
+    volatility: 0.35,
+    description: 'Alto crecimiento en IA y semiconductores'
+  },
+  {
+    id: 'crypto',
+    name: 'Criptomoneda',
+    ticker: 'BTC-USD',
+    icon: 'fa-bitcoin',
+    color: 'amber',
+    expectedReturn: 0.40,
+    volatility: 0.65,
+    description: 'Alta volatilidad y potencial especulativo'
+  },
+  {
+    id: 'commodity',
+    name: 'Fondo de Commodities',
+    ticker: 'GLD',
+    icon: 'fa-coins',
+    color: 'yellow',
+    description: 'Cobertura con oro y protección contra inflación',
+    expectedReturn: 0.08,
+    volatility: 0.18
+  }
+];
+
 const SimulatorPage: React.FC<SimulatorPageProps> = ({ portfolio }) => {
   const [amount, setAmount] = useState(10000);
   const [horizon, setHorizon] = useState(12); // Meses
   const [riskAversion, setRiskAversion] = useState(50); // 0-100
   const [monthlyContribution, setMonthlyContribution] = useState(0);
   const [inflationRate, setInflationRate] = useState(3); // % anual
+  const [selectedAsset, setSelectedAsset] = useState<string>('tech'); // Activo seleccionado
   const [simulationData, setSimulationData] = useState<any[]>([]);
   const [results, setResults] = useState<SimulationResult | null>(null);
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   useEffect(() => {
     runSimulation();
-  }, [amount, horizon, riskAversion, portfolio, monthlyContribution, inflationRate]);
+  }, [amount, horizon, riskAversion, portfolio, monthlyContribution, inflationRate, selectedAsset]);
 
   // Función para generar número aleatorio con distribución normal (Box-Muller)
   const randomNormal = (mean: number, stdDev: number): number => {
@@ -38,9 +84,12 @@ const SimulatorPage: React.FC<SimulatorPageProps> = ({ portfolio }) => {
   };
 
   const runSimulation = () => {
-    // Si no hay portafolio, usar valores por defecto
-    const baseReturn = portfolio?.metrics?.expected_return || 0.08; // 8% anual por defecto
-    const baseRisk = portfolio?.metrics?.risk || 0.15; // 15% volatilidad por defecto
+    // Obtener características del activo seleccionado
+    const asset = ASSET_TYPES.find(a => a.id === selectedAsset) || ASSET_TYPES[0];
+    
+    // Usar valores del activo seleccionado o del portafolio
+    const baseReturn = asset.expectedReturn;
+    const baseRisk = asset.volatility;
 
     // Ajustar retorno y riesgo según tolerancia al riesgo del usuario
     const riskFactor = riskAversion / 100; // 0-1
@@ -155,6 +204,51 @@ const SimulatorPage: React.FC<SimulatorPageProps> = ({ portfolio }) => {
                 {showAdvanced ? 'Básico' : 'Avanzado'}
               </button>
             </div>
+
+          {/* Selector de Tipo de Activo */}
+          <div className="mb-6 p-4 bg-gray-800 rounded-xl border border-gray-600">
+            <label className="block text-sm font-bold text-gray-200 mb-4 flex items-center gap-2">
+              <i className="fas fa-layer-group text-cyan-400"></i>
+              Tipo de Activo a Simular
+            </label>
+            <div className="grid grid-cols-1 gap-3">
+              {ASSET_TYPES.map((asset) => (
+                <button
+                  key={asset.id}
+                  onClick={() => setSelectedAsset(asset.id)}
+                  className={`p-4 rounded-lg border-2 transition-all duration-300 text-left ${
+                    selectedAsset === asset.id
+                      ? `border-${asset.color}-500 bg-${asset.color}-900/30 shadow-lg shadow-${asset.color}-900/50`
+                      : 'border-gray-600 bg-gray-700 hover:border-gray-500'
+                  }`}
+                >
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className={`w-10 h-10 rounded-lg bg-gradient-to-br from-${asset.color}-600 to-${asset.color}-700 flex items-center justify-center`}>
+                      <i className={`fas ${asset.icon} text-white text-lg`}></i>
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="font-bold text-white text-sm">{asset.name}</h3>
+                      <p className="text-xs text-gray-400">{asset.ticker}</p>
+                    </div>
+                    {selectedAsset === asset.id && (
+                      <i className="fas fa-check-circle text-teal-400 text-xl"></i>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-300 mb-2">{asset.description}</p>
+                  <div className="flex gap-4 text-xs">
+                    <span className="text-green-400">
+                      <i className="fas fa-arrow-up mr-1"></i>
+                      Retorno: {(asset.expectedReturn * 100).toFixed(0)}%
+                    </span>
+                    <span className="text-amber-400">
+                      <i className="fas fa-chart-area mr-1"></i>
+                      Volatilidad: {(asset.volatility * 100).toFixed(0)}%
+                    </span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
           
           {/* Monto Inicial */}
           <div>
@@ -305,10 +399,22 @@ const SimulatorPage: React.FC<SimulatorPageProps> = ({ portfolio }) => {
         <div className="lg:col-span-2 space-y-6">
           {/* Métricas principales */}
           <div className="bg-gray-700 p-6 rounded-xl border border-gray-600 shadow-2xl">
-            <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
-              <i className="fas fa-chart-bar text-teal-400"></i>
-              Resultados Proyectados
-            </h2>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+                <i className="fas fa-chart-bar text-teal-400"></i>
+                Resultados Proyectados
+              </h2>
+              {/* Badge del activo seleccionado */}
+              <div className="flex items-center gap-2 bg-gray-800 px-4 py-2 rounded-lg border border-gray-600">
+                <i className={`fas ${ASSET_TYPES.find(a => a.id === selectedAsset)?.icon} text-teal-400`}></i>
+                <span className="text-sm font-bold text-white">
+                  {ASSET_TYPES.find(a => a.id === selectedAsset)?.name}
+                </span>
+                <span className="text-xs text-gray-400">
+                  ({ASSET_TYPES.find(a => a.id === selectedAsset)?.ticker})
+                </span>
+              </div>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Valor Final Esperado */}
               <div className="bg-gray-800 p-6 rounded-xl border border-gray-600 hover:border-teal-500 transition-all">
