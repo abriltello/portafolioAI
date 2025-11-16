@@ -22,3 +22,6 @@ Thumbs.db
 # Build
 /dist/
 /build/
+
+*.pyc
+__pycache__/
