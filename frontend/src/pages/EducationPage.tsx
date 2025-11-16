@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import AIChatWidget from '../components/AIChatWidget';
+// importación eliminada: AIChatWidget
 
 interface ArticleCardProps {
   category: string;
@@ -28,7 +28,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ category, title, summary }) =
 
 const EducationPage: React.FC = () => {
   const [filter, setFilter] = useState('all');
-  const [isChatOpen, setIsChatOpen] = useState(false);
+  // const [isChatOpen, setIsChatOpen] = useState(false);
 
   const articles = [
     {
@@ -200,16 +200,7 @@ const EducationPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Floating AI Chat Widget Button */}
-      <button
-        onClick={() => setIsChatOpen(!isChatOpen)}
-        className="fixed bottom-8 right-8 bg-gradient-to-r from-teal-600 to-cyan-600 text-white p-5 rounded-full shadow-2xl hover:shadow-teal-900/50 hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-teal-500/50 z-50"
-        aria-label="Abrir chat con IA"
-      >
-        <i className="fas fa-robot text-3xl"></i>
-      </button>
-
-      <AIChatWidget isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
+      {/* Botón y widget de chat IA eliminados */}
     </div>
   );
 };
