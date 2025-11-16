@@ -78,7 +78,6 @@ const NewsItemCard: React.FC<NewsItemProps> = ({ news }) => {
 const NewsPage: React.FC = () => {
   const [news, setNews] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<string>('all');
 
   // Noticias de ejemplo con URLs reales de Google News
@@ -225,20 +224,6 @@ const NewsPage: React.FC = () => {
         <div className="text-center">
           <div className="inline-block animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-teal-500 mb-4"></div>
           <p className="text-xl text-gray-300">Cargando noticias financieras...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gray-800 text-white pt-20 flex items-center justify-center">
-        <div className="text-center bg-gray-700 p-12 rounded-xl border border-red-500">
-          <i className="fas fa-exclamation-triangle text-6xl text-red-500 mb-4"></i>
-          <p className="text-xl text-red-400 font-bold">{error}</p>
-          <button className="mt-6 px-6 py-3 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-lg transition-colors">
-            <i className="fas fa-redo mr-2"></i>Intentar de nuevo
-          </button>
         </div>
       </div>
     );
