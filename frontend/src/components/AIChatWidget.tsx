@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import clsx from 'clsx';
-import { getAIExplanation } from '../services/api';
+// importación eliminada: función de chatbot ya no existe
 
 interface AIChatWidgetProps {
   isOpen: boolean;
@@ -45,10 +45,10 @@ const AIChatWidget: React.FC<AIChatWidgetProps> = ({ isOpen, onClose }) => {
     setLoading(true);
 
     try {
-      const response = await getAIExplanation(input);
+      // El chatbot fue eliminado. Puedes mostrar un mensaje fijo o eliminar esta lógica.
       const aiMessage: Message = {
         id: messages.length + 2,
-        text: response.data.explanation,
+        text: "Función de asistente de IA deshabilitada.",
         sender: 'ai',
         timestamp: new Date().toLocaleTimeString(),
       };

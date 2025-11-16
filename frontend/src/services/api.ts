@@ -71,7 +71,7 @@ export const submitContactForm = (contactData: any) => api.post('/support/contac
 export const fetchNews = () => api.get('/news');
 
 // Funciones de IA
-export const getAIExplanation = (concept: string) => api.post('/ai/explain', { concept });
+// Función de chatbot eliminada
 
 // Funciones de datos de acciones
 export const fetchStockData = (tickers: string[]) => api.post('/stock-data', { tickers });

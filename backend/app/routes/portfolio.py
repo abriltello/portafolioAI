@@ -7,7 +7,7 @@ from app.models.user import User
 from app.models.portfolio import Portfolio, PortfolioCreate
 from app.routes.auth import get_current_user
 from app.services.optimizer_service import generate_portfolio
-from app.services.gemini_service import explain_concept
+## Chatbot eliminado: no se importa ni usa explain_concept
 
 router = APIRouter()
 
@@ -126,14 +126,7 @@ async def get_news():
     ]
     return mock_news
 
-@router.post("/ai/explain", response_description="Get AI explanation for a concept")
-async def get_ai_explanation(concept_data: Dict[str, str] = Body(...)):
-    concept = concept_data.get("concept")
-    if not concept:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Concept is required")
-    
-    explanation = explain_concept(concept)
-    return {"concept": concept, "explanation": explanation}
+## Endpoint y lógica de chatbot eliminados
 
 @router.post("/stock-data", response_description="Get real-time stock data from Yahoo Finance")
 async def get_stock_data(

@@ -91,4 +91,11 @@ async def get_me(current_user: Annotated[User, Depends(get_current_user)]):
     # Asegurarse que el campo 'role' esté presente
     if "role" not in user_dict:
         user_dict["role"] = "user"
+    # Buscar el portafolio asociado al usuario
+    portfolio = db.portfolios.find_one({"user_id": user_dict["_id"]})
+    if portfolio:
+        portfolio["_id"] = str(portfolio["_id"])
+        user_dict["portfolio"] = portfolio
+    else:
+        user_dict["portfolio"] = None
     return user_dict
