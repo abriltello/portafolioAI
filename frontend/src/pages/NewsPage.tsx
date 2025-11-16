@@ -61,10 +61,11 @@ const NewsItemCard: React.FC<NewsItemProps> = ({ news }) => {
             href={news.url}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={() => {
-              console.log('Abriendo URL:', news.url);
+            onClick={(e) => {
+              e.stopPropagation();
+              console.log('Click en enlace:', news.url);
             }}
-            className="text-teal-400 hover:text-teal-300 text-sm font-bold inline-flex items-center gap-2 hover:gap-3 transition-all cursor-pointer"
+            className="text-teal-400 hover:text-teal-300 text-sm font-bold inline-flex items-center gap-2 hover:gap-3 transition-all cursor-pointer z-10 relative"
           >
             Leer más <i className="fas fa-external-link-alt"></i>
           </a>
@@ -88,7 +89,7 @@ const NewsPage: React.FC = () => {
       title: 'La Fed mantiene tasas de interés estables en medio de señales económicas mixtas',
       summary: 'El Comité Federal de Mercado Abierto decidió mantener las tasas de interés sin cambios, señalando preocupaciones sobre la inflación persistente.',
       date: new Date().toISOString(),
-      url: 'https://news.google.com/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGx6TVdZU0FtVnpHZ0pOV0NnQVAB?hl=es-419&gl=MX&ceid=MX%3Aes-419',
+      url: 'https://www.bloomberg.com/markets/rates-bonds',
       category: 'Economía',
       author: 'María González'
     },
@@ -97,7 +98,7 @@ const NewsPage: React.FC = () => {
       title: 'Dólar alcanza nuevo máximo frente al peso mexicano',
       summary: 'La moneda estadounidense se fortalece ante la incertidumbre económica global y las políticas monetarias restrictivas.',
       date: new Date(Date.now() - 43200000).toISOString(),
-      url: 'https://news.google.com/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRFZxYUdjU0FtVnpHZ0pOV0NnQVAB?hl=es-419&gl=MX&ceid=MX%3Aes-419',
+      url: 'https://www.investing.com/currencies/usd-mxn',
       category: 'Economía',
       author: 'Pedro Ramírez'
     },
@@ -106,7 +107,7 @@ const NewsPage: React.FC = () => {
       title: 'Inflación en México muestra signos de desaceleración',
       summary: 'Los últimos datos del INEGI revelan una tendencia a la baja en los precios al consumidor durante el último trimestre.',
       date: new Date(Date.now() - 86400000).toISOString(),
-      url: 'https://news.google.com/search?q=inflaci%C3%B3n%20M%C3%A9xico&hl=es-419&gl=MX&ceid=MX%3Aes-419',
+      url: 'https://www.reuters.com/world/americas/',
       category: 'Economía',
       author: 'Laura Méndez'
     },
@@ -116,7 +117,7 @@ const NewsPage: React.FC = () => {
       title: 'Wall Street cierra con ganancias impulsado por sector tecnológico',
       summary: 'Los principales índices estadounidenses registran alzas significativas ante resultados corporativos positivos.',
       date: new Date(Date.now() - 7200000).toISOString(),
-      url: 'https://news.google.com/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGx6TVdZU0FtVnpHZ0pOV0NnQVAB?hl=es-419&gl=MX&ceid=MX%3Aes-419',
+      url: 'https://www.cnbc.com/world/?region=world',
       category: 'Mercados',
       author: 'Ricardo Torres'
     },
@@ -125,7 +126,7 @@ const NewsPage: React.FC = () => {
       title: 'Oro alcanza precio récord en mercado internacional',
       summary: 'El metal precioso supera los $2,100 dólares la onza ante la búsqueda de activos refugio por parte de inversionistas.',
       date: new Date(Date.now() - 129600000).toISOString(),
-      url: 'https://news.google.com/search?q=precio%20oro%20internacional&hl=es-419&gl=MX&ceid=MX%3Aes-419',
+      url: 'https://www.investing.com/commodities/gold',
       category: 'Mercados',
       author: 'Sofía Hernández'
     },
@@ -134,7 +135,7 @@ const NewsPage: React.FC = () => {
       title: 'Petróleo WTI sube por tensiones en Medio Oriente',
       summary: 'El barril de crudo texano alcanza los $85 dólares ante preocupaciones sobre la oferta energética global.',
       date: new Date(Date.now() - 172800000).toISOString(),
-      url: 'https://news.google.com/search?q=precio%20petr%C3%B3leo%20WTI&hl=es-419&gl=MX&ceid=MX%3Aes-419',
+      url: 'https://www.bloomberg.com/energy',
       category: 'Mercados',
       author: 'Miguel Ángel Cruz'
     },
@@ -144,7 +145,7 @@ const NewsPage: React.FC = () => {
       title: 'Apple anuncia nuevo iPhone con capacidades de IA revolucionarias',
       summary: 'La compañía tecnológica presenta su última innovación que integra inteligencia artificial avanzada directamente en el dispositivo.',
       date: new Date(Date.now() - 21600000).toISOString(),
-      url: 'https://news.google.com/topics/CAAqJggKIiBDQkFTRWdvSUwyMHZNRGRqTVhZU0FtVnpHZ0pOV0NnQVAB?hl=es-419&gl=MX&ceid=MX%3Aes-419',
+      url: 'https://techcrunch.com/category/artificial-intelligence/',
       category: 'Tecnología',
       author: 'Carlos Rodríguez'
     },
@@ -153,7 +154,7 @@ const NewsPage: React.FC = () => {
       title: 'Google lanza nueva actualización de Gemini AI para competir con ChatGPT',
       summary: 'El gigante tecnológico mejora sus capacidades de inteligencia artificial con procesamiento más rápido y respuestas más precisas.',
       date: new Date(Date.now() - 108000000).toISOString(),
-      url: 'https://news.google.com/search?q=Google%20Gemini%20AI&hl=es-419&gl=MX&ceid=MX%3Aes-419',
+      url: 'https://www.theverge.com/ai-artificial-intelligence',
       category: 'Tecnología',
       author: 'Andrea López'
     },
@@ -162,7 +163,7 @@ const NewsPage: React.FC = () => {
       title: 'Meta presenta nuevas gafas de realidad aumentada para 2025',
       summary: 'Mark Zuckerberg revela el prototipo de dispositivos AR que prometen revolucionar la forma en que interactuamos con el mundo digital.',
       date: new Date(Date.now() - 259200000).toISOString(),
-      url: 'https://news.google.com/search?q=Meta%20gafas%20realidad%20aumentada&hl=es-419&gl=MX&ceid=MX%3Aes-419',
+      url: 'https://www.wired.com/tag/virtual-reality/',
       category: 'Tecnología',
       author: 'Fernando Jiménez'
     },
@@ -172,7 +173,7 @@ const NewsPage: React.FC = () => {
       title: 'Tesla reporta ganancias récord impulsadas por ventas de Model Y',
       summary: 'El fabricante de vehículos eléctricos supera las expectativas de Wall Street con un incremento del 25% en entregas trimestrales.',
       date: new Date(Date.now() - 50400000).toISOString(),
-      url: 'https://news.google.com/search?q=Tesla%20ganancias%20resultados&hl=es-419&gl=MX&ceid=MX%3Aes-419',
+      url: 'https://www.reuters.com/business/autos-transportation/',
       category: 'Empresas',
       author: 'Roberto Sánchez'
     },
@@ -181,7 +182,7 @@ const NewsPage: React.FC = () => {
       title: 'Amazon expande operaciones en América Latina con nuevos centros',
       summary: 'El gigante del comercio electrónico anuncia inversión de $2 mil millones para infraestructura logística en la región.',
       date: new Date(Date.now() - 302400000).toISOString(),
-      url: 'https://news.google.com/search?q=Amazon%20expansi%C3%B3n%20Am%C3%A9rica%20Latina&hl=es-419&gl=MX&ceid=MX%3Aes-419',
+      url: 'https://www.reuters.com/technology/',
       category: 'Empresas',
       author: 'Patricia Vega'
     },
@@ -190,7 +191,7 @@ const NewsPage: React.FC = () => {
       title: 'Microsoft supera a Apple como la empresa más valiosa del mundo',
       summary: 'La capitalización de mercado de Microsoft alcanza los $3.2 billones impulsada por el crecimiento en servicios de nube e IA.',
       date: new Date(Date.now() - 388800000).toISOString(),
-      url: 'https://news.google.com/search?q=Microsoft%20empresa%20m%C3%A1s%20valiosa&hl=es-419&gl=MX&ceid=MX%3Aes-419',
+      url: 'https://www.bloomberg.com/technology',
       category: 'Empresas',
       author: 'Javier Morales'
     }
@@ -200,8 +201,8 @@ const NewsPage: React.FC = () => {
     const getNews = async () => {
       try {
         const response = await fetchNews();
-        // Si la API devuelve datos, usarlos; sino usar mock data
-        if (response.data && response.data.length > 0) {
+        // Si la API devuelve datos CON URLs, usarlos; sino usar mock data
+        if (response.data && response.data.length > 0 && response.data[0].url) {
           setNews(response.data);
         } else {
           setNews(mockNews);
