@@ -83,9 +83,14 @@ function App() {
       return;
     }
 
-    // Login: detectar si es primera vez (sin portafolio) y redirigir a cuestionario; si no, al dashboard
+    // Login: detectar si es admin y redirigir al dashboard de admin
     try {
       const me = await fetchCurrentUser();
+      const isAdminUser = me.data?.role === 'admin';
+      if (isAdminUser) {
+        window.location.href = '/admin';
+        return;
+      }
       const hasPortfolio = !!me.data?.portfolio;
       if (hasPortfolio) {
         window.location.href = '/dashboard/overview';

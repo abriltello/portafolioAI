@@ -76,4 +76,46 @@ export const fetchNews = () => api.get('/news');
 // Funciones de datos de acciones
 export const fetchStockData = (tickers: string[]) => api.post('/stock-data', { tickers });
 
+// --- Funciones ADMIN ---
+// Usuarios
+export const adminFetchUsers = () => api.get('/admin/users');
+export const adminGetUser = (userId: string) => api.get(`/admin/users/${userId}`);
+export const adminUpdateUser = (userId: string, data: any) => api.put(`/admin/users/${userId}`, data);
+export const adminDeleteUser = (userId: string) => api.delete(`/admin/users/${userId}`);
+export const adminBlockUser = (userId: string) => api.post(`/admin/users/${userId}/block`);
+export const adminUnblockUser = (userId: string) => api.post(`/admin/users/${userId}/unblock`);
+export const adminResetPassword = (userId: string) => api.post(`/admin/users/${userId}/reset-password`);
+export const adminUserActivity = (userId: string) => api.get(`/admin/users/${userId}/activity`);
+
+// Portafolios
+export const adminFetchPortfolios = () => api.get('/admin/portfolios');
+export const adminGetPortfolio = (portfolioId: string) => api.get(`/admin/portfolios/${portfolioId}`);
+export const adminUpdatePortfolio = (portfolioId: string, data: any) => api.put(`/admin/portfolios/${portfolioId}`, data);
+export const adminDeletePortfolio = (portfolioId: string) => api.delete(`/admin/portfolios/${portfolioId}`);
+export const adminGetUserPortfolios = (userId: string) => api.get(`/admin/portfolios/user/${userId}`);
+
+// Simulaciones
+export const adminFetchSimulations = () => api.get('/admin/simulations');
+export const adminGetSimulationsForPortfolio = (portfolioId: string) => api.get(`/admin/simulations/portfolio/${portfolioId}`);
+export const adminDeleteSimulation = (portfolioId: string, timestamp: string) => api.delete(`/admin/simulations/${portfolioId}/${timestamp}`);
+
+// Contenido
+export const adminFetchContent = () => api.get('/admin/content');
+export const adminCreateContent = (data: any) => api.post('/admin/content', data);
+export const adminUpdateContent = (contentId: string, data: any) => api.put(`/admin/content/${contentId}`, data);
+export const adminDeleteContent = (contentId: string) => api.delete(`/admin/content/${contentId}`);
+
+// Soporte
+export const adminFetchSupportMessages = () => api.get('/admin/support/messages');
+export const adminDeleteSupportMessage = (messageId: string) => api.delete(`/admin/support/messages/${messageId}`);
+
+// Configuración
+export const adminFetchConfig = () => api.get('/admin/config');
+export const adminUpdateConfig = (data: any) => api.put('/admin/config', data);
+
+// Logs
+export const adminFetchLogs = () => api.get('/admin/logs');
+export const adminGetLog = (logId: string) => api.get(`/admin/logs/${logId}`);
+export const adminDeleteLog = (logId: string) => api.delete(`/admin/logs/${logId}`);
+
 export default api;

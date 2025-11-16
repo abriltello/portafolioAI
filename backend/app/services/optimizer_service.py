@@ -42,69 +42,48 @@ def generate_portfolio(user_profile: Dict[str, Any], preferences: Dict[str, Any]
     expected_return = 0.0
     risk = 0.0
 
+    # Listado extendido de activos para diversificación
+    EXTENDED_ASSETS = [
+        {"ticker": "TLT", "name": "iShares 20+ Year Treasury Bond ETF", "reason": "Bonos del tesoro estadounidense a largo plazo."},
+        {"ticker": "JNJ", "name": "Johnson & Johnson", "reason": "Empresa farmacéutica estable con dividendos."},
+        {"ticker": "MSFT", "name": "Microsoft Corporation", "reason": "Líder tecnológico global."},
+        {"ticker": "EMB", "name": "iShares Emerging Markets Bond ETF", "reason": "Bonos de mercados emergentes."},
+        {"ticker": "VT", "name": "Vanguard Total World Stock ETF", "reason": "Cobertura global diversificada."},
+        {"ticker": "NVDA", "name": "NVIDIA Corporation", "reason": "Tecnología y semiconductores."},
+        {"ticker": "BTC-USD", "name": "Bitcoin USD", "reason": "Criptomoneda líder, alta volatilidad."},
+        {"ticker": "GLD", "name": "SPDR Gold Trust", "reason": "Oro físico, protección contra inflación."},
+        {"ticker": "AAPL", "name": "Apple Inc.", "reason": "Innovación y consumo global."},
+        {"ticker": "GOOGL", "name": "Alphabet Inc.", "reason": "Tecnología y publicidad digital."},
+        {"ticker": "AMZN", "name": "Amazon.com Inc.", "reason": "E-commerce y servicios en la nube."},
+        {"ticker": "XLF", "name": "Financial Select Sector SPDR Fund", "reason": "Sector financiero diversificado."},
+        {"ticker": "XLE", "name": "Energy Select Sector SPDR Fund", "reason": "Sector energético diversificado."}
+    ]
+
+    # Selección y asignación según perfil
     if risk_level == "low":
-        portfolio_assets = [
-            {
-                "ticker": TICKER_MAPPING["BONO_ESTABLE"], 
-                "name": ASSET_NAMES[TICKER_MAPPING["BONO_ESTABLE"]], 
-                "allocation_pct": 60.0, 
-                "reason": "Inversión de bajo riesgo en bonos del tesoro estadounidense a largo plazo."
-            },
-            {
-                "ticker": TICKER_MAPPING["CEDEAR_CONSERVADOR"], 
-                "name": ASSET_NAMES[TICKER_MAPPING["CEDEAR_CONSERVADOR"]], 
-                "allocation_pct": 40.0, 
-                "reason": "Exposición a empresa farmacéutica estable con dividendos consistentes."
-            }
-        ]
+        selected = EXTENDED_ASSETS[:5]
+        allocations = [35, 25, 15, 15, 10]
         expected_return = 0.05
         risk = 0.03
     elif risk_level == "medium":
-        portfolio_assets = [
-            {
-                "ticker": TICKER_MAPPING["CEDEAR_MODERADO"], 
-                "name": ASSET_NAMES[TICKER_MAPPING["CEDEAR_MODERADO"]], 
-                "allocation_pct": 50.0, 
-                "reason": "Balance entre crecimiento y estabilidad con líder tecnológico."
-            },
-            {
-                "ticker": TICKER_MAPPING["BONO_DESARROLLO"], 
-                "name": ASSET_NAMES[TICKER_MAPPING["BONO_DESARROLLO"]], 
-                "allocation_pct": 30.0, 
-                "reason": "Renta fija con exposición a mercados emergentes."
-            },
-            {
-                "ticker": TICKER_MAPPING["ETF_GLOBAL"], 
-                "name": ASSET_NAMES[TICKER_MAPPING["ETF_GLOBAL"]], 
-                "allocation_pct": 20.0, 
-                "reason": "Diversificación internacional con cobertura global."
-            }
-        ]
+        selected = EXTENDED_ASSETS[:7]
+        allocations = [25, 15, 15, 15, 10, 10, 10]
         expected_return = 0.10
         risk = 0.08
     else: # high
-        portfolio_assets = [
-            {
-                "ticker": TICKER_MAPPING["ACCION_ALTO_CRECIMIENTO"], 
-                "name": ASSET_NAMES[TICKER_MAPPING["ACCION_ALTO_CRECIMIENTO"]], 
-                "allocation_pct": 60.0, 
-                "reason": "Alto potencial de crecimiento en sector tecnológico (IA y semiconductores)."
-            },
-            {
-                "ticker": TICKER_MAPPING["CRYPTO_INNOVACION"], 
-                "name": ASSET_NAMES[TICKER_MAPPING["CRYPTO_INNOVACION"]], 
-                "allocation_pct": 20.0, 
-                "reason": "Exposición a criptomoneda líder con alta volatilidad."
-            },
-            {
-                "ticker": TICKER_MAPPING["COMMODITY_ESPECULATIVO"], 
-                "name": ASSET_NAMES[TICKER_MAPPING["COMMODITY_ESPECULATIVO"]], 
-                "allocation_pct": 20.0, 
-                "reason": "Cobertura con oro físico y protección contra inflación."
-            }
-        ]
+        selected = EXTENDED_ASSETS[:10]
+        allocations = [18, 15, 13, 12, 10, 10, 8, 7, 4, 3]
         expected_return = 0.18
         risk = 0.15
+
+    portfolio_assets = []
+    for i, asset in enumerate(selected):
+        portfolio_assets.append({
+            "ticker": asset["ticker"],
+            "name": asset["name"],
+            "allocation_pct": allocations[i],
+            "reason": asset["reason"]
+        })
 
     # Asegurar que la suma de porcentajes sea 100
     total_pct = sum(asset["allocation_pct"] for asset in portfolio_assets)

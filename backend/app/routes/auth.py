@@ -59,6 +59,13 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
         raise credentials_exception
     return user
 
+# Dependencia para requerir rol admin
+from fastapi import Depends
+def require_admin(current_user: dict = Depends(get_current_user)):
+    if current_user.get("role") != "admin":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin access required")
+    return current_user
+
 @router.post("/register", response_description="Register new user")
 async def register_user(user_data: UserRegister = Body(...)):
     hashed_password = get_password_hash(user_data.password)

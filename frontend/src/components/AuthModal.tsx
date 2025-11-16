@@ -1,7 +1,7 @@
 // Componente de autenticación simple
 import React, { useState, useEffect, useRef } from 'react';
 import { loginUser, registerUser } from '../services/api';
-import { FaUser, FaEnvelope, FaLock, FaGoogle, FaGithub, FaTimes } from 'react-icons/fa';
+import { FaUser, FaEnvelope, FaLock, FaTimes } from 'react-icons/fa';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -89,7 +89,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess, 
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center"
+      className="fixed inset-0 z-50 flex items-center justify-center px-2 sm:px-0"
       tabIndex={-1}
       aria-modal="true"
       role="dialog"
@@ -143,7 +143,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess, 
       </div>
 
       {/* Modal Card */}
-      <div className="relative bg-gray-900/95 backdrop-blur-md rounded-2xl shadow-2xl max-w-md w-full px-8 py-10 animate-fade-in border border-teal-500/30">
+      <div className="relative bg-gray-900/95 backdrop-blur-md rounded-2xl shadow-2xl w-full max-w-md sm:max-w-lg px-4 sm:px-8 py-8 sm:py-10 animate-fade-in border border-teal-500/30">
         {/* Botón cerrar */}
         <button
           className="absolute top-4 right-4 text-gray-400 hover:text-teal-400 text-2xl focus:outline-none transition-colors duration-200"
@@ -234,7 +234,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess, 
           {error && <p className="text-red-400 text-xs text-center bg-red-900/20 border border-red-500/30 rounded-lg py-2">{error}</p>}
           <button
             type="submit"
-            className="w-full bg-teal-600 text-white font-bold py-3 rounded-lg hover:bg-teal-700 transition duration-200 disabled:opacity-50 shadow-lg shadow-teal-900/50"
+            className="w-full bg-teal-600 text-white font-bold py-3 rounded-lg hover:bg-teal-700 transition duration-200 disabled:opacity-50 shadow-lg shadow-teal-900/50 text-base sm:text-lg"
             disabled={loading}
           >
             {loading ? 'Cargando...' : (isRegister ? 'Registrarse' : 'Entrar')}
@@ -254,25 +254,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess, 
           </p>
         </div>
 
-        {/* Social login (placeholder) */}
-        <div className="mt-7 border-t border-gray-700 pt-6 grid gap-3">
-          <button
-            type="button"
-            className="w-full flex items-center justify-center bg-gray-800/50 border border-gray-700 text-gray-300 py-2 rounded-lg shadow-sm hover:bg-gray-700/50 transition duration-200 gap-2"
-            disabled
-            aria-disabled="true"
-          >
-            <FaGoogle className="text-lg" /> Continuar con Google
-          </button>
-          <button
-            type="button"
-            className="w-full flex items-center justify-center bg-gray-800/50 border border-gray-700 text-gray-300 py-2 rounded-lg shadow-sm hover:bg-gray-700/50 transition duration-200 gap-2"
-            disabled
-            aria-disabled="true"
-          >
-            <FaGithub className="text-lg" /> Continuar con GitHub
-          </button>
-        </div>
       </div>
     </div>
   );

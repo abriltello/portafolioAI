@@ -113,8 +113,22 @@ const RiskProfileForm: React.FC<RiskProfileFormProps> = ({ onPortfolioGenerated 
 
       // Optimizar el portafolio
       const portfolioResponse = await optimizePortfolio(riskProfileData);
-      onPortfolioGenerated(portfolioResponse.data);
-      
+
+      // Obtener el portafolio actualizado desde el backend
+      const userId = localStorage.getItem('user_id');
+      let realPortfolio = portfolioResponse.data;
+      if (userId) {
+        try {
+          const fetchPortfolio = await import('../services/api');
+          const userPortfolioResp = await fetchPortfolio.fetchUserPortfolio(userId);
+          if (userPortfolioResp.data) {
+            realPortfolio = userPortfolioResp.data;
+          }
+        } catch (e) {
+          // Si falla, usar el portafolio de optimizePortfolio
+        }
+      }
+      onPortfolioGenerated(realPortfolio);
       // Redirigir al dashboard sin mostrar alerta
       navigate('/dashboard/overview');
     } catch (err: any) {

@@ -15,7 +15,7 @@ interface SimulationResult {
   sharpeRatio: number;
 }
 
-// Definición de tipos de activos con sus características
+// Mock de activos recomendados igual que RecommendationsPage
 interface AssetType {
   id: string;
   name: string;
@@ -29,34 +29,104 @@ interface AssetType {
 
 const ASSET_TYPES: AssetType[] = [
   {
-    id: 'tech',
-    name: 'Acción Tecnológica',
+    id: 'nvda',
+    name: 'NVIDIA Corp.',
     ticker: 'NVDA',
-    icon: 'fa-microchip',
+    icon: 'fa-chart-line',
     color: 'teal',
-    expectedReturn: 0.25,
+    expectedReturn: 0.185,
     volatility: 0.35,
-    description: 'Alto crecimiento en IA y semiconductores'
+    description: 'Líder en semiconductores y AI.'
   },
   {
-    id: 'crypto',
-    name: 'Criptomoneda',
-    ticker: 'BTC-USD',
+    id: 'aapl',
+    name: 'Apple Inc.',
+    ticker: 'AAPL',
+    icon: 'fa-chart-line',
+    color: 'cyan',
+    expectedReturn: 0.12,
+    volatility: 0.25,
+    description: 'Empresa tecnológica global.'
+  },
+  {
+    id: 'btc',
+    name: 'Bitcoin',
+    ticker: 'BTC',
     icon: 'fa-bitcoin',
     color: 'amber',
-    expectedReturn: 0.40,
+    expectedReturn: 0.08,
     volatility: 0.65,
-    description: 'Alta volatilidad y potencial especulativo'
+    description: 'Criptomoneda principal, reserva digital.'
   },
   {
-    id: 'commodity',
-    name: 'Fondo de Commodities',
-    ticker: 'GLD',
+    id: 'al30',
+    name: 'Bonar 2030',
+    ticker: 'AL30',
+    icon: 'fa-file-invoice-dollar',
+    color: 'yellow',
+    expectedReturn: 0.075,
+    volatility: 0.18,
+    description: 'Bono soberano argentino.'
+  },
+  {
+    id: 'spy',
+    name: 'SPDR S&P 500 ETF',
+    ticker: 'SPY',
+    icon: 'fa-layer-group',
+    color: 'blue',
+    expectedReturn: 0.10,
+    volatility: 0.20,
+    description: 'ETF que replica el S&P 500.'
+  },
+  {
+    id: 'eth',
+    name: 'Ethereum',
+    ticker: 'ETH',
+    icon: 'fa-bitcoin',
+    color: 'purple',
+    expectedReturn: 0.06,
+    volatility: 0.60,
+    description: 'Plataforma líder de contratos inteligentes.'
+  },
+  {
+    id: 'xau',
+    name: 'Oro',
+    ticker: 'XAU',
     icon: 'fa-coins',
     color: 'yellow',
-    description: 'Cobertura con oro y protección contra inflación',
-    expectedReturn: 0.08,
-    volatility: 0.18
+    expectedReturn: 0.05,
+    volatility: 0.10,
+    description: 'Activo refugio ante volatilidad.'
+  },
+  {
+    id: 'tsla',
+    name: 'CEDEAR Tesla',
+    ticker: 'TSLA',
+    icon: 'fa-globe',
+    color: 'rose',
+    expectedReturn: 0.09,
+    volatility: 0.30,
+    description: 'Acción internacional vía CEDEAR.'
+  },
+  {
+    id: 'alpha',
+    name: 'FCI Alpha Renta Fija',
+    ticker: 'ALPHA',
+    icon: 'fa-piggy-bank',
+    color: 'emerald',
+    expectedReturn: 0.07,
+    volatility: 0.08,
+    description: 'Fondo común de inversión conservador.'
+  },
+  {
+    id: 'bma',
+    name: 'BMA',
+    ticker: 'BMA',
+    icon: 'fa-chart-line',
+    color: 'indigo',
+    expectedReturn: 0.07,
+    volatility: 0.22,
+    description: 'Banco líder en Argentina.'
   }
 ];
 
