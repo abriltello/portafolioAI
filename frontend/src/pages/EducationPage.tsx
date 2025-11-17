@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import AIChatWidget from '../components/AIChatWidget';
+// importación eliminada: AIChatWidget
 
 interface Article {
   category: string;
@@ -38,8 +38,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, onClick }) => (
 
 const EducationPage: React.FC = () => {
   const [filter, setFilter] = useState('all');
-  const [isChatOpen, setIsChatOpen] = useState(false);
-  const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
+  // const [isChatOpen, setIsChatOpen] = useState(false);
 
   const articles: Article[] = [
     {
@@ -572,81 +571,7 @@ const EducationPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Floating AI Chat Widget Button */}
-      <button
-        onClick={() => setIsChatOpen(!isChatOpen)}
-        className="fixed bottom-8 right-8 bg-gradient-to-r from-teal-600 to-cyan-600 text-white p-5 rounded-full shadow-2xl hover:shadow-teal-900/50 hover:scale-110 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-teal-500/50 z-50"
-        aria-label="Abrir chat con IA"
-      >
-        <i className="fas fa-robot text-3xl"></i>
-      </button>
-
-      <AIChatWidget isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
-
-      {/* Modal de Artículo Completo */}
-      {selectedArticle && (
-        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4 overflow-y-auto">
-          <div className="bg-gray-800 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto border-2 border-teal-500 shadow-2xl shadow-teal-900/50">
-            {/* Header del Modal */}
-            <div className="sticky top-0 bg-gradient-to-r from-gray-800 to-gray-900 p-6 border-b border-gray-700 flex justify-between items-start z-10">
-              <div className="flex-1">
-                <span className="inline-flex items-center gap-2 px-3 py-1 text-xs font-bold text-teal-400 bg-teal-900/40 rounded-full uppercase tracking-wide mb-3">
-                  <i className="fas fa-graduation-cap"></i>
-                  {selectedArticle.category}
-                </span>
-                <h2 className="text-3xl font-bold text-white mt-2">{selectedArticle.title}</h2>
-              </div>
-              <button
-                onClick={() => setSelectedArticle(null)}
-                className="ml-4 text-gray-400 hover:text-white text-3xl transition-colors flex-shrink-0"
-                aria-label="Cerrar"
-              >
-                <i className="fas fa-times"></i>
-              </button>
-            </div>
-
-            {/* Contenido del Artículo */}
-            <div className="p-8">
-              <div 
-                className="prose prose-invert prose-teal max-w-none
-                  prose-headings:text-teal-400 prose-headings:font-bold
-                  prose-h2:text-2xl prose-h2:mb-4 prose-h2:mt-8 prose-h2:border-b prose-h2:border-gray-700 prose-h2:pb-2
-                  prose-h3:text-xl prose-h3:mb-3 prose-h3:mt-6
-                  prose-h4:text-lg prose-h4:mb-2 prose-h4:mt-4 prose-h4:text-cyan-400
-                  prose-p:text-gray-300 prose-p:leading-relaxed prose-p:mb-4
-                  prose-ul:text-gray-300 prose-ul:my-4
-                  prose-li:my-2
-                  prose-strong:text-teal-300 prose-strong:font-bold
-                  prose-table:w-full prose-table:my-6
-                  prose-th:bg-gray-700 prose-th:text-teal-400 prose-th:font-bold prose-th:p-3 prose-th:border prose-th:border-gray-600
-                  prose-td:bg-gray-800 prose-td:text-gray-300 prose-td:p-3 prose-td:border prose-td:border-gray-700"
-                dangerouslySetInnerHTML={{ __html: selectedArticle.fullContent }}
-              />
-
-              {/* Footer del Artículo */}
-              <div className="mt-8 pt-6 border-t border-gray-700 flex items-center justify-between">
-                <div className="flex gap-4">
-                  {selectedArticle.tags.map((tag, idx) => (
-                    <span 
-                      key={idx}
-                      className="px-3 py-1 bg-gray-700 text-gray-300 rounded-full text-sm"
-                    >
-                      #{tag}
-                    </span>
-                  ))}
-                </div>
-                <button
-                  onClick={() => setSelectedArticle(null)}
-                  className="bg-gradient-to-r from-teal-600 to-cyan-600 text-white px-6 py-3 rounded-full font-bold hover:shadow-lg hover:shadow-teal-900/50 transition-all hover:scale-105"
-                >
-                  <i className="fas fa-check mr-2"></i>
-                  Entendido
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Botón y widget de chat IA eliminados */}
     </div>
   );
 };
