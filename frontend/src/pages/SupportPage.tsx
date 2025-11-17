@@ -38,6 +38,7 @@ const SupportPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showAllFAQs, setShowAllFAQs] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -61,7 +62,7 @@ const SupportPage: React.FC = () => {
     }
   };
 
-  const faqs = [
+  const initialFaqs = [
     {
       question: "¿Cómo creo una cuenta en PortafolioAI?",
       answer: "Puedes crear una cuenta haciendo clic en el botón 'Iniciar Sesión / Registrarse' en la página de inicio y luego seleccionando la opción 'Regístrate'."
@@ -79,6 +80,31 @@ const SupportPage: React.FC = () => {
       answer: "Sí, puedes ajustar tus preferencias y volver a generar un portafolio. También puedes usar el simulador para probar diferentes escenarios."
     },
   ];
+
+  const additionalFaqs = [
+    {
+      question: "¿Qué datos necesito para crear mi perfil de inversión?",
+      answer: "Necesitas proporcionar información sobre tu edad, ingresos, experiencia en inversiones, tolerancia al riesgo y objetivos financieros. Todos estos datos están protegidos y se utilizan únicamente para personalizar tus recomendaciones."
+    },
+    {
+      question: "¿Cuánto cuesta usar PortafolioAI?",
+      answer: "PortafolioAI ofrece un plan básico gratuito con funcionalidades limitadas. Los planes premium comienzan desde $9.99/mes e incluyen análisis avanzados, recomendaciones de IA personalizadas y acceso a herramientas profesionales de optimización."
+    },
+    {
+      question: "¿Puedo conectar mis cuentas de inversión reales?",
+      answer: "Actualmente, PortafolioAI funciona como un simulador educativo. No conectamos cuentas de inversión reales para mantener la seguridad de tus datos. Sin embargo, puedes ingresar manualmente tu portafolio actual para análisis y recomendaciones."
+    },
+    {
+      question: "¿Con qué frecuencia se actualizan los precios y datos del mercado?",
+      answer: "Los datos de mercado se actualizan cada 15 minutos durante las horas de operación de los mercados. Los análisis y recomendaciones se recalculan diariamente y cuando realizas cambios significativos en tu perfil."
+    },
+    {
+      question: "¿Cómo funciona el simulador de escenarios?",
+      answer: "El simulador te permite probar diferentes condiciones de mercado (alcistas, bajistas, volatilidad alta) y ver cómo reaccionaría tu portafolio. Utiliza datos históricos y modelos estadísticos para proyectar rendimientos potenciales bajo diferentes escenarios económicos."
+    }
+  ];
+
+  const faqs = showAllFAQs ? [...initialFaqs, ...additionalFaqs] : initialFaqs;
 
   return (
     <div className="min-h-screen bg-gray-800 text-white pt-20 pb-24 px-4 sm:px-6 lg:px-8">
@@ -213,10 +239,26 @@ const SupportPage: React.FC = () => {
             </div>
 
             {/* Botón para ver más FAQs */}
-            <button className="mt-6 w-full bg-gray-700 hover:bg-gray-600 text-white font-bold py-4 px-6 rounded-xl border border-gray-600 hover:border-teal-500 transition-all flex items-center justify-center gap-2">
-              <i className="fas fa-book-open"></i>
-              Ver todas las preguntas frecuentes
-            </button>
+            {!showAllFAQs && (
+              <button 
+                onClick={() => setShowAllFAQs(true)}
+                className="mt-6 w-full bg-gray-700 hover:bg-gray-600 text-white font-bold py-4 px-6 rounded-xl border border-gray-600 hover:border-teal-500 transition-all flex items-center justify-center gap-2 transform hover:scale-105"
+              >
+                <i className="fas fa-book-open"></i>
+                Ver todas las preguntas frecuentes
+                <i className="fas fa-chevron-down ml-2"></i>
+              </button>
+            )}
+            {showAllFAQs && (
+              <button 
+                onClick={() => setShowAllFAQs(false)}
+                className="mt-6 w-full bg-gray-700 hover:bg-gray-600 text-white font-bold py-4 px-6 rounded-xl border border-gray-600 hover:border-amber-500 transition-all flex items-center justify-center gap-2 transform hover:scale-105"
+              >
+                <i className="fas fa-eye-slash"></i>
+                Mostrar menos
+                <i className="fas fa-chevron-up ml-2"></i>
+              </button>
+            )}
           </div>
         </div>
 

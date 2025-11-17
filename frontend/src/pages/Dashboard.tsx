@@ -67,5 +67,5 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout, portfolio, isAdmin }) =
     </div>
   );
 };
-
+//esto es para hacer el PR
 export default Dashboard;
