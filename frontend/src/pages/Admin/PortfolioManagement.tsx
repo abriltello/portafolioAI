@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from "react";
-import { adminFetchPortfolios, adminDeletePortfolio } from "../../services/api";
+import { adminFetchPortfolios, adminDeletePortfolio, adminRegeneratePortfolio } from "../../services/api";
 
 const PortfolioManagement = () => {
   const [portfolios, setPortfolios] = useState<any[]>([]);
@@ -8,6 +8,7 @@ const PortfolioManagement = () => {
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [regeneratingId, setRegeneratingId] = useState<string | null>(null);
 
   const fetchPortfolios = () => {
     setLoading(true);
@@ -42,12 +43,27 @@ const PortfolioManagement = () => {
     }
   };
 
+  const handleRegenerate = async (userId: string) => {
+    setRegeneratingId(userId);
+    setSuccessMsg(null);
+    setError(null);
+    try {
+      await adminRegeneratePortfolio(userId);
+      setSuccessMsg("Portafolio regenerado correctamente.");
+      fetchPortfolios();
+    } catch {
+      setError("Error al regenerar portafolio");
+    } finally {
+      setRegeneratingId(null);
+    }
+  };
+
   return (
     <div className="p-8">
       <h2 className="text-xl font-bold mb-4">Gestión de Portafolios</h2>
       <div className="mb-4 flex flex-wrap gap-4 items-end">
-        <input className="border rounded px-3 py-2" placeholder="Buscar usuario..." />
-        <select className="border rounded px-3 py-2">
+        <input className="border rounded px-3 py-2 bg-[var(--color-secondary-bg)] text-[var(--color-text-light)]" placeholder="Buscar usuario..." />
+        <select className="border rounded px-3 py-2 bg-[var(--color-secondary-bg)] text-[var(--color-text-light)]">
           <option value="">Todos los riesgos</option>
           <option value="bajo">Bajo</option>
           <option value="medio">Medio</option>
@@ -55,7 +71,7 @@ const PortfolioManagement = () => {
         </select>
         <button className="ml-auto bg-teal-600 text-white px-4 py-2 rounded">Exportar CSV</button>
       </div>
-      <div className="overflow-x-auto mb-8">
+      <div className="overflow-x-auto mb-8 text-[var(--color-text-light)]">
         {loading ? (
           <div className="text-gray-500">Cargando...</div>
         ) : error ? (
@@ -63,9 +79,9 @@ const PortfolioManagement = () => {
         ) : (
           <>
             {successMsg && <div className="text-green-600 mb-2">{successMsg}</div>}
-            <table className="min-w-full bg-white rounded shadow">
+            <table className="min-w-full bg-[var(--color-card-bg)] text-[var(--color-text-light)] rounded shadow">
               <thead>
-                <tr className="bg-gray-100 text-gray-700">
+                <tr className="bg-[var(--color-secondary-bg)] text-[var(--color-text-light)]">
                   <th className="py-2 px-4">Usuario</th>
                   <th className="py-2 px-4">Fecha</th>
                   <th className="py-2 px-4">Perfil de riesgo</th>
@@ -78,9 +94,23 @@ const PortfolioManagement = () => {
                   <tr><td colSpan={5} className="text-center py-4">No hay portafolios registrados.</td></tr>
                 ) : (
                   portfolios.map((p, idx) => (
-                    <tr key={p._id || idx} className="border-b">
+                    <tr key={p._id || idx} className="border-b border-[var(--color-secondary-bg)]">
                       <td className="py-2 px-4">{p.user_id}</td>
-                      <td className="py-2 px-4">{p.generated_at ? new Date(p.generated_at).toLocaleDateString() : '-'}</td>
+                      <td className="py-2 px-4">{
+                        p.generated_at
+                          ? (() => {
+                              let date;
+                              if (typeof p.generated_at === 'string' || typeof p.generated_at === 'number') {
+                                date = new Date(p.generated_at);
+                              } else if (p.generated_at && p.generated_at.$date) {
+                                date = new Date(p.generated_at.$date);
+                              }
+                              return date && !isNaN(date.getTime())
+                                ? date.toLocaleDateString()
+                                : '-';
+                            })()
+                          : '-'
+                      }</td>
                       <td className="py-2 px-4">{p.metrics?.risk_level || '-'}</td>
                       <td className="py-2 px-4">{p.assets ? p.assets.length : 0}</td>
                       <td className="py-2 px-4 flex gap-2">
@@ -88,7 +118,9 @@ const PortfolioManagement = () => {
                         <button className="text-red-600 hover:underline" onClick={() => handleDelete(p._id)} disabled={deletingId === p._id}>
                           {deletingId === p._id ? "Eliminando..." : "Eliminar"}
                         </button>
-                        <button className="text-yellow-600 hover:underline">Regenerar</button>
+                        <button className="text-yellow-600 hover:underline" onClick={() => handleRegenerate(p.user_id)} disabled={regeneratingId === p.user_id}>
+                          {regeneratingId === p.user_id ? "Regenerando..." : "Regenerar"}
+                        </button>
                       </td>
                     </tr>
                   ))
@@ -98,7 +130,7 @@ const PortfolioManagement = () => {
           </>
         )}
       </div>
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-[var(--color-card-bg)] rounded-lg shadow p-6 text-[var(--color-text-light)]">
         <h3 className="font-semibold text-lg mb-2">Estadísticas y Métricas</h3>
         <ul className="list-disc pl-5 text-gray-700 text-sm">
           <li>Distribución de perfiles de riesgo (ejemplo: bajo 1, medio 1, alto 1).</li>

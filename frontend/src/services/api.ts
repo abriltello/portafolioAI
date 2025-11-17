@@ -1,3 +1,5 @@
+// Regenerar portafolio (admin)
+export const adminRegeneratePortfolio = (userId: string) => api.post('/optimize', { user_id: userId });
 import axios from 'axios';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
@@ -80,7 +82,7 @@ export const fetchStockData = (tickers: string[]) => api.post('/stock-data', { t
 // Usuarios
 export const adminFetchUsers = () => api.get('/admin/users');
 export const adminGetUser = (userId: string) => api.get(`/admin/users/${userId}`);
-export const adminUpdateUser = (userId: string, data: any) => api.put(`/admin/users/${userId}`, data);
+export const adminUpdateUser = (userId: string, data: any) => api.patch(`/admin/users/${userId}`, data);
 export const adminDeleteUser = (userId: string) => api.delete(`/admin/users/${userId}`);
 export const adminBlockUser = (userId: string) => api.post(`/admin/users/${userId}/block`);
 export const adminUnblockUser = (userId: string) => api.post(`/admin/users/${userId}/unblock`);

@@ -1,9 +1,17 @@
 
 import React, { useEffect, useState } from "react";
-import { adminFetchUsers, adminDeleteUser } from "../../services/api";
+import { adminFetchUsers, adminDeleteUser, adminUpdateUser, adminResetPassword, adminUserActivity } from "../../services/api";
 
 const UserManagement = () => {
   const [users, setUsers] = useState<any[]>([]);
+  const [search, setSearch] = useState("");
+  const [filterRole, setFilterRole] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
+  const [editingUser, setEditingUser] = useState<any | null>(null);
+  const [editForm, setEditForm] = useState<any>({});
+  const [showHistory, setShowHistory] = useState<string | null>(null);
+  const [userHistory, setUserHistory] = useState<any[]>([]);
+  const [resettingId, setResettingId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -42,17 +50,96 @@ const UserManagement = () => {
     }
   };
 
+  // Editar usuario
+  const handleEdit = (user: any) => {
+    setEditingUser(user);
+    setEditForm({ name: user.name, email: user.email, role: user.role, status: user.status });
+  };
+
+  const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setEditForm({ ...editForm, [e.target.name]: e.target.value });
+  };
+
+  const handleEditSave = async () => {
+    if (!editingUser) return;
+    try {
+      await adminUpdateUser(editingUser._id, editForm);
+      setSuccessMsg("Usuario actualizado correctamente.");
+      setEditingUser(null);
+      fetchUsers();
+    } catch {
+      setError("Error al actualizar usuario");
+    }
+  };
+
+  // Resetear contraseña
+  const handleReset = async (userId: string) => {
+    setResettingId(userId);
+    setSuccessMsg(null);
+    setError(null);
+    try {
+      await adminResetPassword(userId);
+      setSuccessMsg("Contraseña reseteada correctamente.");
+    } catch {
+      setError("Error al resetear contraseña");
+    } finally {
+      setResettingId(null);
+    }
+  };
+
+  // Historial de usuario
+  const handleHistory = async (userId: string) => {
+    setShowHistory(userId);
+    setUserHistory([]);
+    try {
+      const res = await adminUserActivity(userId);
+      setUserHistory(res.data.activity || []);
+    } catch {
+      setUserHistory([]);
+    }
+  };
+
+  const closeHistory = () => {
+    setShowHistory(null);
+    setUserHistory([]);
+  };
+
+  // Filtrar usuarios según los filtros
+  const filteredUsers = users.filter((user) => {
+    const matchesSearch =
+      search === "" ||
+      (user.name && user.name.toLowerCase().includes(search.toLowerCase())) ||
+      (user.email && user.email.toLowerCase().includes(search.toLowerCase()));
+    const matchesRole = filterRole === "" || user.role === filterRole;
+    const status = user.status || (user.is_blocked ? "bloqueado" : "activo");
+    const matchesStatus = filterStatus === "" || status === filterStatus;
+    return matchesSearch && matchesRole && matchesStatus;
+  });
+
   return (
     <div className="p-8">
       <h2 className="text-xl font-bold mb-4">Gestión de Usuarios</h2>
       <div className="mb-4 flex flex-wrap gap-4 items-end">
-        <input className="border rounded px-3 py-2" placeholder="Buscar usuario..." />
-        <select className="border rounded px-3 py-2">
+        <input
+          className="border rounded px-3 py-2 bg-[var(--color-secondary-bg)] text-[var(--color-text-light)]"
+          placeholder="Buscar usuario..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+        />
+        <select
+          className="border rounded px-3 py-2 bg-[var(--color-secondary-bg)] text-[var(--color-text-light)]"
+          value={filterRole}
+          onChange={e => setFilterRole(e.target.value)}
+        >
           <option value="">Todos los roles</option>
           <option value="user">Usuario</option>
           <option value="admin">Admin</option>
         </select>
-        <select className="border rounded px-3 py-2">
+        <select
+          className="border rounded px-3 py-2 bg-[var(--color-secondary-bg)] text-[var(--color-text-light)]"
+          value={filterStatus}
+          onChange={e => setFilterStatus(e.target.value)}
+        >
           <option value="">Todos los estados</option>
           <option value="activo">Activo</option>
           <option value="bloqueado">Bloqueado</option>
@@ -67,9 +154,9 @@ const UserManagement = () => {
         ) : (
           <>
             {successMsg && <div className="text-green-600 mb-2">{successMsg}</div>}
-            <table className="min-w-full bg-white rounded shadow">
+            <table className="min-w-full bg-[var(--color-card-bg)] text-[var(--color-text-light)] rounded shadow">
               <thead>
-                <tr className="bg-gray-100 text-gray-700">
+                <tr className="bg-[var(--color-secondary-bg)] text-[var(--color-text-light)]">
                   <th className="py-2 px-4">Nombre</th>
                   <th className="py-2 px-4">Email</th>
                   <th className="py-2 px-4">Rol</th>
@@ -79,23 +166,25 @@ const UserManagement = () => {
                 </tr>
               </thead>
               <tbody>
-                {users.length === 0 ? (
+                {filteredUsers.length === 0 ? (
                   <tr><td colSpan={6} className="text-center py-4">No hay usuarios registrados.</td></tr>
                 ) : (
-                  users.map((user, idx) => (
-                    <tr key={user._id || idx} className="border-b">
+                  filteredUsers.map((user, idx) => (
+                    <tr key={user._id || idx} className="border-b border-[var(--color-secondary-bg)]">
                       <td className="py-2 px-4">{user.name || user.full_name || user.username || '-'}</td>
                       <td className="py-2 px-4">{user.email}</td>
                       <td className="py-2 px-4">{user.role}</td>
                       <td className="py-2 px-4">{user.status || (user.is_blocked ? 'bloqueado' : 'activo')}</td>
                       <td className="py-2 px-4">{user.created_at ? new Date(user.created_at).toLocaleDateString() : '-'}</td>
                       <td className="py-2 px-4 flex gap-2">
-                        <button className="text-blue-600 hover:underline">Editar</button>
-                        <button className="text-yellow-600 hover:underline">Resetear</button>
+                        <button className="text-blue-600 hover:underline" onClick={() => handleEdit(user)}>Editar</button>
+                        <button className="text-yellow-600 hover:underline" onClick={() => handleReset(user._id)} disabled={resettingId === user._id}>
+                          {resettingId === user._id ? "Reseteando..." : "Resetear"}
+                        </button>
                         <button className="text-red-600 hover:underline" onClick={() => handleDelete(user._id)} disabled={deletingId === user._id}>
                           {deletingId === user._id ? "Eliminando..." : "Eliminar"}
                         </button>
-                        <button className="text-gray-600 hover:underline">Historial</button>
+                        <button className="text-gray-600 hover:underline" onClick={() => handleHistory(user._id)}>Historial</button>
                       </td>
                     </tr>
                   ))
@@ -105,6 +194,69 @@ const UserManagement = () => {
           </>
         )}
       </div>
+    {/* Modal de edición de usuario */}
+    {editingUser && (
+      <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+        <div className="bg-[var(--color-card-bg)] p-6 rounded shadow-lg w-full max-w-md">
+          <h3 className="text-lg font-bold mb-4">Editar Usuario</h3>
+          <div className="mb-2">
+            <label className="block mb-1">Nombre</label>
+            <input name="name" value={editForm.name} onChange={handleEditChange} className="w-full border rounded px-3 py-2 bg-[var(--color-secondary-bg)] text-[var(--color-text-light)]" />
+          </div>
+          <div className="mb-2">
+            <label className="block mb-1">Email</label>
+            <input name="email" value={editForm.email} onChange={handleEditChange} className="w-full border rounded px-3 py-2 bg-[var(--color-secondary-bg)] text-[var(--color-text-light)]" />
+          </div>
+          <div className="mb-2">
+            <label className="block mb-1">Rol</label>
+            <select name="role" value={editForm.role} onChange={handleEditChange} className="w-full border rounded px-3 py-2 bg-[var(--color-secondary-bg)] text-[var(--color-text-light)]">
+              <option value="user">Usuario</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <div className="mb-2">
+            <label className="block mb-1">Estado</label>
+            <select name="status" value={editForm.status} onChange={handleEditChange} className="w-full border rounded px-3 py-2 bg-[var(--color-secondary-bg)] text-[var(--color-text-light)]">
+              <option value="activo">Activo</option>
+              <option value="bloqueado">Bloqueado</option>
+            </select>
+          </div>
+          <div className="flex gap-2 mt-4">
+            <button className="bg-teal-600 text-white px-4 py-2 rounded" onClick={handleEditSave}>Guardar</button>
+            <button className="bg-gray-600 text-white px-4 py-2 rounded" onClick={() => setEditingUser(null)}>Cancelar</button>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {/* Modal de historial de usuario */}
+    {showHistory && (
+      <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+        <div className="bg-[var(--color-card-bg)] p-6 rounded shadow-lg w-full max-w-md">
+          <h3 className="text-lg font-bold mb-4">Historial de Usuario</h3>
+          {userHistory.length === 0 ? (
+            <div className="text-gray-400">No hay actividad registrada.</div>
+          ) : (
+            <ul className="list-disc pl-5">
+              {userHistory.map((act, i) => {
+                let actEs = act;
+                if (act === "login") actEs = "Inicio de sesión";
+                else if (act === "update profile") actEs = "Actualizó perfil";
+                else if (act === "generate portfolio") actEs = "Generó portafolio";
+                else if (act === "reset password") actEs = "Reseteó contraseña";
+                else if (act === "block user") actEs = "Usuario bloqueado";
+                else if (act === "unblock user") actEs = "Usuario desbloqueado";
+                // Puedes agregar más traducciones aquí
+                return <li key={i} className="mb-1 text-[var(--color-text-light)]">{actEs}</li>;
+              })}
+            </ul>
+          )}
+          <div className="flex gap-2 mt-4">
+            <button className="bg-gray-600 text-white px-4 py-2 rounded" onClick={closeHistory}>Cerrar</button>
+          </div>
+        </div>
+      </div>
+    )}
     </div>
   );
 };

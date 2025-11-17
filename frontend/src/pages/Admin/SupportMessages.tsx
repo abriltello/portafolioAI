@@ -3,6 +3,32 @@ import React, { useEffect, useState } from "react";
 import { adminFetchSupportMessages, adminDeleteSupportMessage } from "../../services/api";
 
 const SupportMessages = () => {
+    // Handler para marcar como resuelto
+    const handleMarkResolved = async (messageId: string) => {
+      setSuccessMsg(null);
+      setError(null);
+      try {
+        await fetch(`/api/admin/support/messages/${messageId}/resolve`, { method: 'PATCH' });
+        setSuccessMsg('Mensaje marcado como resuelto.');
+        fetchMessages();
+      } catch {
+        setError('Error al marcar como resuelto');
+      }
+    };
+
+    // Handler para asignar (simulado)
+    const handleAssign = async (messageId: string) => {
+      setSuccessMsg(null);
+      setError(null);
+      // Aquí podrías abrir un modal para seleccionar admin, por ahora solo feedback
+      setSuccessMsg('Mensaje asignado (simulado).');
+    };
+
+    // Handler para responder (simulado)
+    const handleReply = (messageId: string) => {
+      // Aquí podrías abrir un modal para responder, por ahora solo feedback
+      setSuccessMsg('Funcionalidad de respuesta próximamente.');
+    };
   const [messages, setMessages] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -46,8 +72,8 @@ const SupportMessages = () => {
     <div className="p-8">
       <h2 className="text-xl font-bold mb-4">Soporte y Mensajes</h2>
       <div className="mb-4 flex flex-wrap gap-4 items-end">
-        <input className="border rounded px-3 py-2" placeholder="Buscar usuario..." />
-        <select className="border rounded px-3 py-2">
+        <input className="border rounded px-3 py-2 bg-[var(--color-secondary-bg)] text-[var(--color-text-light)]" placeholder="Buscar usuario..." />
+        <select className="border rounded px-3 py-2 bg-[var(--color-secondary-bg)] text-[var(--color-text-light)]">
           <option value="">Todos los estados</option>
           <option value="pendiente">Pendiente</option>
           <option value="resuelto">Resuelto</option>
@@ -61,9 +87,9 @@ const SupportMessages = () => {
         ) : (
           <>
             {successMsg && <div className="text-green-600 mb-2">{successMsg}</div>}
-            <table className="min-w-full bg-white rounded shadow">
+            <table className="min-w-full bg-[var(--color-card-bg)] text-[var(--color-text-light)] rounded shadow">
               <thead>
-                <tr className="bg-gray-100 text-gray-700">
+                <tr className="bg-[var(--color-secondary-bg)] text-[var(--color-text-light)]">
                   <th className="py-2 px-4">Usuario</th>
                   <th className="py-2 px-4">Fecha</th>
                   <th className="py-2 px-4">Estado</th>
@@ -71,20 +97,40 @@ const SupportMessages = () => {
                   <th className="py-2 px-4">Acciones</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="text-[var(--color-text-light)]">
                 {messages.length === 0 ? (
                   <tr><td colSpan={5} className="text-center py-4">No hay mensajes registrados.</td></tr>
                 ) : (
                   messages.map((m, idx) => (
-                    <tr key={m._id || idx} className="border-b">
-                      <td className="py-2 px-4">{m.user || m.user_id || '-'}</td>
-                      <td className="py-2 px-4">{m.date ? new Date(m.date).toLocaleDateString() : (m.created_at ? new Date(m.created_at).toLocaleDateString() : '-')}</td>
-                      <td className="py-2 px-4">{m.status || '-'}</td>
-                      <td className="py-2 px-4">{m.msg || m.message || '-'}</td>
-                      <td className="py-2 px-4 flex gap-2">
-                        <button className="text-blue-600 hover:underline">Responder</button>
-                        <button className="text-green-600 hover:underline">Marcar resuelto</button>
-                        <button className="text-gray-600 hover:underline">Asignar</button>
+                    <tr key={m._id || idx} className="border-b text-[var(--color-text-light)]">
+                      <td className="py-2 px-4 text-[var(--color-text-light)]">{m.user && m.user.trim() !== '' ? m.user : (m.name || '-')}</td>
+                      <td className="py-2 px-4 text-[var(--color-text-light)]">{
+                        (() => {
+                          if (m.created_at) {
+                            // Si es string ISO o número
+                            if (typeof m.created_at === 'string' || typeof m.created_at === 'number') {
+                              const d = new Date(m.created_at);
+                              return !isNaN(d.getTime()) ? d.toLocaleDateString() : '-';
+                            }
+                            // Si es objeto MongoDB
+                            if (m.created_at && m.created_at.$date) {
+                              const d = new Date(m.created_at.$date);
+                              return !isNaN(d.getTime()) ? d.toLocaleDateString() : '-';
+                            }
+                          }
+                          if (m.date) {
+                            const d = new Date(m.date);
+                            return !isNaN(d.getTime()) ? d.toLocaleDateString() : '-';
+                          }
+                          return '-';
+                        })()
+                      }</td>
+                      <td className="py-2 px-4 text-[var(--color-text-light)]">{m.status || 'pendiente'}</td>
+                      <td className="py-2 px-4 text-[var(--color-text-light)]">{m.message || '-'}</td>
+                      <td className="py-2 px-4 flex gap-2 text-[var(--color-text-light)]">
+                        <button className="text-blue-600 hover:underline" onClick={() => handleReply(m._id)}>Responder</button>
+                        <button className="text-green-600 hover:underline" onClick={() => handleMarkResolved(m._id)}>Marcar resuelto</button>
+                        <button className="text-gray-600 hover:underline" onClick={() => handleAssign(m._id)}>Asignar</button>
                         <button className="text-red-600 hover:underline" onClick={() => handleDelete(m._id)} disabled={deletingId === m._id}>
                           {deletingId === m._id ? "Eliminando..." : "Eliminar"}
                         </button>

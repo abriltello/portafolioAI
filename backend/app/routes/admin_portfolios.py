@@ -13,6 +13,13 @@ async def list_portfolios(current_user: User = Depends(require_admin)):
     portfolios = list(db.portfolios.find())
     for p in portfolios:
         p["_id"] = str(p["_id"])
+        if "generated_at" in p:
+            # Si es tipo datetime, convertir a string ISO
+            if hasattr(p["generated_at"], "isoformat"):
+                p["generated_at"] = p["generated_at"].isoformat()
+            # Si viene como dict tipo {'$date': ...}
+            elif isinstance(p["generated_at"], dict) and "$date" in p["generated_at"]:
+                p["generated_at"] = p["generated_at"]["$date"]
     return portfolios
 
 @router.get("/{portfolio_id}", response_description="Get portfolio by ID")

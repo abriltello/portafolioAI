@@ -93,9 +93,17 @@ async def simulate_portfolio(
 async def submit_contact_message(
     contact_data: Dict[str, Any] = Body(...)
 ):
-    # En una aplicación real, esto enviaría un email o guardaría en una colección de soporte
-    print(f"Mensaje de contacto recibido: {contact_data}")
-    # Aquí podrías guardar en DB: db.contact_messages.insert_one(contact_data)
+    from app.database import db
+    from datetime import datetime
+    # Construir el documento con los campos necesarios
+    message_doc = {
+        "user": contact_data.get("name", ""),
+        "email": contact_data.get("email", ""),
+        "message": contact_data.get("message", ""),
+        "created_at": datetime.utcnow(),
+        "status": "pendiente"
+    }
+    db.contact_messages.insert_one(message_doc)
     return {"message": "Mensaje de contacto recibido con éxito."}
 
 @router.get("/news", response_description="Get financial news")
