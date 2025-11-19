@@ -1,11 +1,10 @@
-import { Link, useLocation } from 'react-router-dom';
-
 interface SidebarProps {
   onLogout: () => void;
+  activeSection: string;
+  onSectionChange: (section: string) => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
-  const location = useLocation();
+const Sidebar: React.FC<SidebarProps> = ({ onLogout, activeSection, onSectionChange }) => {
   return (
     <aside className="w-72 bg-[var(--color-card-bg)] border-r border-[var(--color-secondary-bg)] min-h-screen flex flex-col justify-between shadow-lg text-[var(--color-text-light)]">
       <div>
@@ -13,25 +12,44 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
         <nav className="mt-8">
           <ul className="space-y-2">
             <li>
-              <Link to="/admin" className={`flex items-center gap-3 px-6 py-3 rounded-lg font-medium transition-colors ${location.pathname === '/admin' ? 'bg-[var(--color-secondary-bg)] text-[var(--color-accent-teal)]' : 'text-[var(--color-text-light)] hover:bg-[var(--color-secondary-bg)]'}`}>Dashboard</Link>
+              <button 
+                onClick={() => onSectionChange('users')} 
+                className={`w-full text-left flex items-center gap-3 px-6 py-3 rounded-lg font-medium transition-colors ${activeSection === 'users' ? 'bg-[var(--color-secondary-bg)] text-[var(--color-accent-teal)]' : 'text-[var(--color-text-light)] hover:bg-[var(--color-secondary-bg)]'}`}
+              >
+                Gestión de Usuarios
+              </button>
             </li>
             <li>
-              <Link to="/admin/users" className={`flex items-center gap-3 px-6 py-3 rounded-lg font-medium transition-colors ${location.pathname === '/admin/users' ? 'bg-[var(--color-secondary-bg)] text-[var(--color-accent-teal)]' : 'text-[var(--color-text-light)] hover:bg-[var(--color-secondary-bg)]'}`}>Gestión de Usuarios</Link>
+              <button 
+                onClick={() => onSectionChange('portfolios')} 
+                className={`w-full text-left flex items-center gap-3 px-6 py-3 rounded-lg font-medium transition-colors ${activeSection === 'portfolios' ? 'bg-[var(--color-secondary-bg)] text-[var(--color-accent-teal)]' : 'text-[var(--color-text-light)] hover:bg-[var(--color-secondary-bg)]'}`}
+              >
+                Gestión de Portafolios
+              </button>
             </li>
             <li>
-              <Link to="/admin/portfolios" className={`flex items-center gap-3 px-6 py-3 rounded-lg font-medium transition-colors ${location.pathname === '/admin/portfolios' ? 'bg-[var(--color-secondary-bg)] text-[var(--color-accent-teal)]' : 'text-[var(--color-text-light)] hover:bg-[var(--color-secondary-bg)]'}`}>Gestión de Portafolios</Link>
+              <button 
+                onClick={() => onSectionChange('content')} 
+                className={`w-full text-left flex items-center gap-3 px-6 py-3 rounded-lg font-medium transition-colors ${activeSection === 'content' ? 'bg-[var(--color-secondary-bg)] text-[var(--color-accent-teal)]' : 'text-[var(--color-text-light)] hover:bg-[var(--color-secondary-bg)]'}`}
+              >
+                Contenido Educativo & Noticias
+              </button>
             </li>
             <li>
-              <Link to="/admin/simulations" className={`flex items-center gap-3 px-6 py-3 rounded-lg font-medium transition-colors ${location.pathname === '/admin/simulations' ? 'bg-[var(--color-secondary-bg)] text-[var(--color-accent-teal)]' : 'text-[var(--color-text-light)] hover:bg-[var(--color-secondary-bg)]'}`}>Monitor de Simulaciones</Link>
+              <button 
+                onClick={() => onSectionChange('support')} 
+                className={`w-full text-left flex items-center gap-3 px-6 py-3 rounded-lg font-medium transition-colors ${activeSection === 'support' ? 'bg-[var(--color-secondary-bg)] text-[var(--color-accent-teal)]' : 'text-[var(--color-text-light)] hover:bg-[var(--color-secondary-bg)]'}`}
+              >
+                Soporte / Mensajes
+              </button>
             </li>
             <li>
-              <Link to="/admin/content" className={`flex items-center gap-3 px-6 py-3 rounded-lg font-medium transition-colors ${location.pathname === '/admin/content' ? 'bg-[var(--color-secondary-bg)] text-[var(--color-accent-teal)]' : 'text-[var(--color-text-light)] hover:bg-[var(--color-secondary-bg)]'}`}>Contenido Educativo & Noticias</Link>
-            </li>
-            <li>
-              <Link to="/admin/support" className={`flex items-center gap-3 px-6 py-3 rounded-lg font-medium transition-colors ${location.pathname === '/admin/support' ? 'bg-[var(--color-secondary-bg)] text-[var(--color-accent-teal)]' : 'text-[var(--color-text-light)] hover:bg-[var(--color-secondary-bg)]'}`}>Soporte / Mensajes</Link>
-            </li>
-            <li>
-              <Link to="/admin/logs" className={`flex items-center gap-3 px-6 py-3 rounded-lg font-medium transition-colors ${location.pathname === '/admin/logs' ? 'bg-[var(--color-secondary-bg)] text-[var(--color-accent-teal)]' : 'text-[var(--color-text-light)] hover:bg-[var(--color-secondary-bg)]'}`}>Logs y Auditoría</Link>
+              <button 
+                onClick={() => onSectionChange('logs')} 
+                className={`w-full text-left flex items-center gap-3 px-6 py-3 rounded-lg font-medium transition-colors ${activeSection === 'logs' ? 'bg-[var(--color-secondary-bg)] text-[var(--color-accent-teal)]' : 'text-[var(--color-text-light)] hover:bg-[var(--color-secondary-bg)]'}`}
+              >
+                Logs y Auditoría
+              </button>
             </li>
           </ul>
         </nav>

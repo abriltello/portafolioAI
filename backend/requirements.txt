@@ -10,3 +10,4 @@ pandas
 yfinance
 PyPortfolioOpt
 pydantic-extra-types
+email-validator
