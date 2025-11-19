@@ -1,6 +1,10 @@
 import { Link, useLocation } from 'react-router-dom';
 
-const Sidebar = () => {
+interface SidebarProps {
+  onLogout: () => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
   const location = useLocation();
   return (
     <aside className="w-72 bg-[var(--color-card-bg)] border-r border-[var(--color-secondary-bg)] min-h-screen flex flex-col justify-between shadow-lg text-[var(--color-text-light)]">
@@ -37,7 +41,7 @@ const Sidebar = () => {
       </div>
       <div className="p-6 border-t border-[var(--color-secondary-bg)] flex items-center gap-3">
         <span className="font-semibold text-[var(--color-text-light)]">Admin</span>
-        <button className="ml-auto flex items-center gap-2 text-red-400 hover:text-red-600">
+        <button className="ml-auto flex items-center gap-2 text-red-400 hover:text-red-600" onClick={onLogout}>
           Cerrar sesión
         </button>
       </div>

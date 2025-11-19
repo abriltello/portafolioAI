@@ -1,6 +1,9 @@
+          {/* <Route path="/admin/config" element={isAuthenticated && isAdmin ? <SystemConfig /> : <Navigate to="/" />} /> */}
+// import SystemConfig from './pages/Admin/SystemConfig';
 // Componente principal de la aplicación
 import { useState, useEffect, useCallback } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import AuthModal from './components/AuthModal';
 import Dashboard from './pages/Dashboard';
 import Home from './pages/Home';
@@ -14,7 +17,6 @@ import PortfolioManagement from './pages/Admin/PortfolioManagement';
 import SimulationMonitor from './pages/Admin/SimulationMonitor';
 import ContentManager from './pages/Admin/ContentManager';
 import SupportMessages from './pages/Admin/SupportMessages';
-import SystemConfig from './pages/Admin/SystemConfig';
 import LogsAudit from './pages/Admin/LogsAudit';
 
 function App() {
@@ -72,41 +74,39 @@ function App() {
     }
   }, [isAuthenticated, portfolio, fetchPortfolio]);
 
+  const navigate = useNavigate();
   // Función llamada cuando la autenticación es exitosa
   const handleLoginSuccess = async (source: 'login' | 'register') => {
     setIsAuthenticated(true);
     setIsAuthModalOpen(false);
 
-    if (source === 'register') {
-      // Registro: siempre ir al cuestionario
-      window.location.href = '/risk-profile-form';
-      return;
-    }
-
-    // Login: detectar si es admin y redirigir al dashboard de admin
     try {
       const me = await fetchCurrentUser();
       const isAdminUser = me.data?.role === 'admin';
+      setIsAdmin(isAdminUser); // Actualiza el estado global
       if (isAdminUser) {
-        window.location.href = '/admin';
+        navigate('/admin');
+        return;
+      }
+      if (source === 'register') {
+        navigate('/risk-profile-form');
         return;
       }
       const hasPortfolio = !!me.data?.portfolio;
       if (hasPortfolio) {
-        window.location.href = '/dashboard/overview';
+        navigate('/dashboard/overview');
       } else {
-        window.location.href = '/risk-profile-form';
+        navigate('/risk-profile-form');
       }
     } catch (err: any) {
-      // Si el error es 401, limpiar token y permanecer en home
       if (err.response?.status === 401) {
         console.error("Token inválido después del login:", err);
         removeAuthToken();
         setIsAuthenticated(false);
+        setIsAdmin(false);
         return;
       }
-      // Ante otros errores, fallback al dashboard
-      window.location.href = '/dashboard/overview';
+      // No redirigir a '/'
     }
   };
 
@@ -142,51 +142,48 @@ function App() {
   };
 
   return (
-    <Router>
-      <div className="min-h-screen bg-[var(--color-primary-bg)] font-montserrat text-[var(--color-text-light)]">
-        <AnimatedBackground />
-        <Routes>
-          <Route path="/" element={
-            <Home
-              onOpenAuthModalLogin={handleOpenAuthModalLogin}
-              onOpenAuthModalRegister={handleOpenAuthModalRegister}
-              onOpenAuthModalForQuestionnaire={handleOpenAuthModalForQuestionnaire}
-              isAuthenticated={isAuthenticated}
-              portfolio={portfolio}
-              isLoading={isLoading}
-              isAdmin={isAdmin}
-            />
-          } />
-          {/* Rutas protegidas que requieren autenticación */}
-          <Route
-            path="/dashboard/*"
-            element={isAuthenticated ? <Dashboard onLogout={handleLogout} portfolio={portfolio} isAdmin={isAdmin} /> : <Navigate to="/" />}
+    <div className="min-h-screen bg-[var(--color-primary-bg)] font-montserrat text-[var(--color-text-light)]">
+      <AnimatedBackground />
+      <Routes>
+        <Route path="/" element={
+          <Home
+            onOpenAuthModalLogin={handleOpenAuthModalLogin}
+            onOpenAuthModalRegister={handleOpenAuthModalRegister}
+            onOpenAuthModalForQuestionnaire={handleOpenAuthModalForQuestionnaire}
+            isAuthenticated={isAuthenticated}
+            portfolio={portfolio}
+            isLoading={isLoading}
+            isAdmin={isAdmin}
           />
-          <Route
-            path="/risk-profile-form"
-            element={isAuthenticated ? <RiskProfileForm onPortfolioGenerated={handlePortfolioGenerated} /> : <Navigate to="/" />}
-          />
-          {/* Rutas de administración, solo para admin */}
-          <Route path="/admin" element={isAuthenticated && isAdmin ? <AdminDashboard /> : <Navigate to="/" />} />
-          <Route path="/admin/users" element={isAuthenticated && isAdmin ? <UserManagement /> : <Navigate to="/" />} />
-          <Route path="/admin/portfolios" element={isAuthenticated && isAdmin ? <PortfolioManagement /> : <Navigate to="/" />} />
-          <Route path="/admin/simulations" element={isAuthenticated && isAdmin ? <SimulationMonitor /> : <Navigate to="/" />} />
-          <Route path="/admin/content" element={isAuthenticated && isAdmin ? <ContentManager /> : <Navigate to="/" />} />
-          <Route path="/admin/support" element={isAuthenticated && isAdmin ? <SupportMessages /> : <Navigate to="/" />} />
-          <Route path="/admin/config" element={isAuthenticated && isAdmin ? <SystemConfig /> : <Navigate to="/" />} />
-          <Route path="/admin/logs" element={isAuthenticated && isAdmin ? <LogsAudit /> : <Navigate to="/" />} />
-          {/* Otras rutas públicas o de error */}
-          <Route path="*" element={<Navigate to="/" />} />
-        </Routes>
-
-        <AuthModal
-          isOpen={isAuthModalOpen}
-          onClose={() => setIsAuthModalOpen(false)}
-          onLoginSuccess={handleLoginSuccess}
-          initialMode={authModalMode}
+        } />
+        {/* Rutas protegidas que requieren autenticación */}
+        <Route
+          path="/dashboard/*"
+          element={isAuthenticated ? <Dashboard onLogout={handleLogout} portfolio={portfolio} isAdmin={isAdmin} /> : null}
         />
-      </div>
-    </Router>
+        <Route
+          path="/risk-profile-form"
+          element={isAuthenticated ? <RiskProfileForm onPortfolioGenerated={handlePortfolioGenerated} /> : null}
+        />
+        {/* Rutas de administración, solo para admin */}
+        <Route path="/admin" element={isAuthenticated && isAdmin ? <AdminDashboard onLogout={handleLogout} /> : null} />
+        <Route path="/admin/users" element={isAuthenticated && isAdmin ? <UserManagement /> : null} />
+        <Route path="/admin/portfolios" element={isAuthenticated && isAdmin ? <PortfolioManagement /> : null} />
+        <Route path="/admin/simulations" element={isAuthenticated && isAdmin ? <SimulationMonitor /> : null} />
+        <Route path="/admin/content" element={isAuthenticated && isAdmin ? <ContentManager /> : null} />
+        <Route path="/admin/support" element={isAuthenticated && isAdmin ? <SupportMessages /> : null} />
+        <Route path="/admin/logs" element={isAuthenticated && isAdmin ? <LogsAudit /> : null} />
+        {/* Otras rutas públicas o de error */}
+        <Route path="*" element={null} />
+      </Routes>
+
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        onLoginSuccess={handleLoginSuccess}
+        initialMode={authModalMode}
+      />
+    </div>
   );
 }
 

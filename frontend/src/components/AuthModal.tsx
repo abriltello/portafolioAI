@@ -19,6 +19,10 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess, 
   const [loading, setLoading] = useState<boolean>(false);
   const [registerSuccess, setRegisterSuccess] = useState(false);
   const [touched, setTouched] = useState<{ email: boolean; password: boolean; name: boolean }>({ email: false, password: false, name: false });
+  const [showForgot, setShowForgot] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotSent, setForgotSent] = useState(false);
+  const [forgotError, setForgotError] = useState<string | null>(null);
   const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -43,6 +47,23 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess, 
   const validateEmail = (value: string) => /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(value);
   const validatePassword = (value: string) => value.length >= 6;
   const validateName = (value: string) => value.length >= 2;
+
+  // Enviar solicitud de recuperación de contraseña
+  const handleForgotSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setForgotError(null);
+    setForgotSent(false);
+    if (!validateEmail(forgotEmail)) {
+      setForgotError('Correo electrónico inválido');
+      return;
+    }
+    try {
+      await import('../services/api').then(({ forgotPasswordRequest }) => forgotPasswordRequest(forgotEmail));
+      setForgotSent(true);
+    } catch (err: any) {
+      setForgotError('No se pudo enviar el correo.');
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -227,9 +248,48 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess, 
             )}
             {!isRegister && (
               <div className="text-right mt-1">
-                <a href="#" className="text-xs text-teal-400 hover:text-teal-300">¿Olvidaste tu contraseña?</a>
+                <button
+                  type="button"
+                  className="text-xs text-teal-400 hover:text-teal-300 underline"
+                  onClick={() => setShowForgot(true)}
+                >
+                  ¿Olvidaste tu contraseña?
+                </button>
               </div>
             )}
+                {/* Modal de recuperación de contraseña */}
+                {showForgot && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-black/70 z-50">
+                    <div className="bg-gray-900 rounded-xl p-8 w-full max-w-sm shadow-xl border border-teal-500/30 relative">
+                      <button
+                        className="absolute top-3 right-3 text-gray-400 hover:text-teal-400 text-xl"
+                        onClick={() => { setShowForgot(false); setForgotEmail(''); setForgotSent(false); setForgotError(null); }}
+                        aria-label="Cerrar"
+                      >
+                        <FaTimes />
+                      </button>
+                      <h3 className="text-xl font-bold text-white mb-4 text-center">Recuperar contraseña</h3>
+                      <form onSubmit={handleForgotSubmit} className="space-y-4">
+                        <input
+                          type="email"
+                          className="w-full px-4 py-2 rounded-lg bg-gray-800 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-teal-500"
+                          placeholder="Correo electrónico"
+                          value={forgotEmail}
+                          onChange={e => setForgotEmail(e.target.value)}
+                          required
+                        />
+                        {forgotError && <p className="text-red-400 text-xs text-center">{forgotError}</p>}
+                        <button
+                          type="submit"
+                          className="w-full bg-teal-600 text-white font-bold py-2 rounded-lg hover:bg-teal-700 transition duration-200"
+                        >
+                          Enviar instrucciones
+                        </button>
+                        {forgotSent && <p className="text-teal-400 text-xs text-center mt-2">Si el correo existe, recibirás instrucciones para recuperar tu contraseña.</p>}
+                      </form>
+                    </div>
+                  </div>
+                )}
           </div>
           {error && <p className="text-red-400 text-xs text-center bg-red-900/20 border border-red-500/30 rounded-lg py-2">{error}</p>}
           <button

@@ -1,3 +1,5 @@
+// Recuperación de contraseña
+export const forgotPasswordRequest = (email: string) => api.post('/auth/forgot-password', { email });
 // Regenerar portafolio (admin)
 export const adminRegeneratePortfolio = (userId: string) => api.post('/optimize', { user_id: userId });
 import axios from 'axios';

@@ -9,9 +9,10 @@ load_dotenv()
 JWT_SECRET = os.getenv("ACCESS_TOKEN_SECRET")
 JWT_ALGORITHM = "HS256"
 
-def signJWT(user_id: str) -> Dict[str, str]:
+def signJWT(user_id: str, role: str = "user") -> Dict[str, str]:
     payload = {
         "user_id": user_id,
+        "role": role,
         "expires": time.time() + 600  # Token expira en 10 minutos
     }
     token = jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)

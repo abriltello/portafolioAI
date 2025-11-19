@@ -15,31 +15,19 @@ interface HomeProps {
 }
 
 const Home: React.FC<HomeProps> = ({ onOpenAuthModalLogin, onOpenAuthModalRegister, onOpenAuthModalForQuestionnaire, isAuthenticated, portfolio, isLoading, isAdmin }) => {
+
   const navigate = useNavigate();
 
-  // Función para manejar el clic en el botón principal
+
+  // Solo permite registro desde el botón principal
   const handleMainButtonClick = () => {
-    if (isAuthenticated) {
-      // Si está autenticado y tiene portafolio, ir al dashboard
-      if (portfolio) {
-        navigate('/dashboard');
-      } else {
-        // Si está autenticado pero no tiene portafolio, ir al cuestionario
-        navigate('/risk-profile-form');
-      }
-    } else {
-      // Si no está autenticado, abrir modal para registrarse/login antes de ir al cuestionario
-      onOpenAuthModalForQuestionnaire();
-    }
+    onOpenAuthModalRegister();
   };
 
   // Función para obtener el texto del botón según el estado
   const getButtonText = () => {
     if (isLoading) {
       return "Cargando...";
-    }
-    if (isAuthenticated) {
-      return portfolio ? "Ir a mi Dashboard" : "Completar Cuestionario";
     }
     return "Crear mi Portafolio Gratis";
   };
@@ -62,15 +50,7 @@ const Home: React.FC<HomeProps> = ({ onOpenAuthModalLogin, onOpenAuthModalRegist
           >
             Registrarse
           </button>
-          {/* Botón de admin solo si es admin */}
-          {isAuthenticated && isAdmin && (
-            <button
-              onClick={() => navigate('/admin')}
-              className="bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-300 ml-2"
-            >
-              Panel Admin
-            </button>
-          )}
+          {/* Botón de admin eliminado */}
         </nav>
       </header>
 

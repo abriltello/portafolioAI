@@ -1,9 +1,13 @@
 import Sidebar from '../../components/admin/Sidebar';
 
-const AdminDashboard = () => {
+interface AdminDashboardProps {
+  onLogout: () => void;
+}
+
+const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
   return (
     <div className="flex min-h-screen bg-[var(--color-primary-bg)]">
-      <Sidebar />
+      <Sidebar onLogout={onLogout} />
       <div className="flex-1 p-8 text-[var(--color-text-light)]">
         <h1 className="text-2xl font-bold mb-6">Panel de Administración</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

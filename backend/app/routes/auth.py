@@ -1,6 +1,56 @@
+
+from fastapi import APIRouter
+from pydantic import BaseModel, EmailStr
+
+router = APIRouter()
+
+class ResetPasswordRequest(BaseModel):
+    email: EmailStr
+    token: str
+    new_password: str
+
+@router.post("/reset-password", response_description="Restablecer contraseña")
+async def reset_password(data: ResetPasswordRequest):
+    user = db.users.find_one({"email": data.email})
+    if not user or user.get("reset_token") != data.token:
+        raise HTTPException(status_code=400, detail="Token inválido o usuario no encontrado")
+    # Opcional: verificar expiración del token
+    hashed_password = get_password_hash(data.new_password)
+    db.users.update_one({"_id": user["_id"]}, {"$set": {"password_hash": hashed_password}, "$unset": {"reset_token": "", "reset_token_exp": ""}})
+    return {"message": "Contraseña actualizada correctamente"}
+from fastapi import BackgroundTasks
+import secrets
+import smtplib
+from email.message import EmailMessage
+# Endpoint para recuperación de contraseña
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+def send_reset_email(to_email: str, token: str):
+    # Configura aquí tu servidor SMTP real
+    msg = EmailMessage()
+    msg["Subject"] = "Recuperación de contraseña PortafolioAI"
+    msg["From"] = "no-reply@portafolioai.com"
+    msg["To"] = to_email
+    msg.set_content(f"Para recuperar tu contraseña, usa este código: {token}")
+    # Ejemplo: smtplib.SMTP('smtp.gmail.com', 587)
+    # smtp.send_message(msg)
+    print(f"Email de recuperación enviado a {to_email} con token: {token}")
+
+@router.post("/forgot-password", response_description="Enviar email de recuperación")
+async def forgot_password(data: ForgotPasswordRequest, background_tasks: BackgroundTasks):
+    user = db.users.find_one({"email": data.email})
+    if not user:
+        # No revelar si el email existe
+        return {"message": "Si el correo existe, recibirás instrucciones."}
+    # Generar token simple (en producción, usar JWT o similar)
+    reset_token = secrets.token_urlsafe(8)
+    db.users.update_one({"_id": user["_id"]}, {"$set": {"reset_token": reset_token, "reset_token_exp": datetime.utcnow()}})
+    background_tasks.add_task(send_reset_email, data.email, reset_token)
+    return {"message": "Si el correo existe, recibirás instrucciones."}
 from fastapi import APIRouter, Body, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from passlib.context import CryptContext
+
 from typing import Annotated, Dict
 from datetime import datetime
 from pydantic import BaseModel, EmailStr
@@ -87,7 +137,8 @@ async def register_user(user_data: UserRegister = Body(...)):
 async def user_login(user_credentials: Dict[str, str] = Body(...)):
     user = db.users.find_one({"email": user_credentials["email"]})
     if user and verify_password(user_credentials["password"], user["password_hash"]):
-        return signJWT(str(user["_id"]))
+        role = user.get("role", "user")
+        return signJWT(str(user["_id"]), role)
     raise HTTPException(status_code=401, detail="Invalid credentials")
 
 @router.get("/me", response_description="Get current user")

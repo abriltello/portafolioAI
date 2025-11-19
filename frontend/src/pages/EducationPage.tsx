@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 // importación eliminada: AIChatWidget
-
 interface Article {
   category: string;
   title: string;
@@ -38,6 +37,7 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, onClick }) => (
 
 const EducationPage: React.FC = () => {
   const [filter, setFilter] = useState('all');
+  const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   // const [isChatOpen, setIsChatOpen] = useState(false);
 
   const articles: Article[] = [
