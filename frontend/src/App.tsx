@@ -12,12 +12,6 @@ import AnimatedBackground from './components/AnimatedBackground';
 import { getAuthToken, removeAuthToken, fetchCurrentUser } from './services/api';
 // Importar componentes de admin
 import AdminDashboard from './pages/Admin/AdminDashboard';
-import UserManagement from './pages/Admin/UserManagement';
-import PortfolioManagement from './pages/Admin/PortfolioManagement';
-import SimulationMonitor from './pages/Admin/SimulationMonitor';
-import ContentManager from './pages/Admin/ContentManager';
-import SupportMessages from './pages/Admin/SupportMessages';
-import LogsAudit from './pages/Admin/LogsAudit';
 
 function App() {
   // Estado para controlar si el usuario está autenticado
@@ -166,13 +160,7 @@ function App() {
           element={isAuthenticated ? <RiskProfileForm onPortfolioGenerated={handlePortfolioGenerated} /> : null}
         />
         {/* Rutas de administración, solo para admin */}
-        <Route path="/admin" element={isAuthenticated && isAdmin ? <AdminDashboard onLogout={handleLogout} /> : null} />
-        <Route path="/admin/users" element={isAuthenticated && isAdmin ? <UserManagement /> : null} />
-        <Route path="/admin/portfolios" element={isAuthenticated && isAdmin ? <PortfolioManagement /> : null} />
-        <Route path="/admin/simulations" element={isAuthenticated && isAdmin ? <SimulationMonitor /> : null} />
-        <Route path="/admin/content" element={isAuthenticated && isAdmin ? <ContentManager /> : null} />
-        <Route path="/admin/support" element={isAuthenticated && isAdmin ? <SupportMessages /> : null} />
-        <Route path="/admin/logs" element={isAuthenticated && isAdmin ? <LogsAudit /> : null} />
+        <Route path="/admin/*" element={isAuthenticated && isAdmin ? <AdminDashboard onLogout={handleLogout} /> : null} />
         {/* Otras rutas públicas o de error */}
         <Route path="*" element={null} />
       </Routes>
