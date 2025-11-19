@@ -31,9 +31,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onLogout }) => {
               <Link to="/admin/support" className={`flex items-center gap-3 px-6 py-3 rounded-lg font-medium transition-colors ${location.pathname === '/admin/support' ? 'bg-[var(--color-secondary-bg)] text-[var(--color-accent-teal)]' : 'text-[var(--color-text-light)] hover:bg-[var(--color-secondary-bg)]'}`}>Soporte / Mensajes</Link>
             </li>
             <li>
-              <Link to="/admin/config" className={`flex items-center gap-3 px-6 py-3 rounded-lg font-medium transition-colors ${location.pathname === '/admin/config' ? 'bg-[var(--color-secondary-bg)] text-[var(--color-accent-teal)]' : 'text-[var(--color-text-light)] hover:bg-[var(--color-secondary-bg)]'}`}>Configuración del Sistema</Link>
-            </li>
-            <li>
               <Link to="/admin/logs" className={`flex items-center gap-3 px-6 py-3 rounded-lg font-medium transition-colors ${location.pathname === '/admin/logs' ? 'bg-[var(--color-secondary-bg)] text-[var(--color-accent-teal)]' : 'text-[var(--color-text-light)] hover:bg-[var(--color-secondary-bg)]'}`}>Logs y Auditoría</Link>
             </li>
           </ul>

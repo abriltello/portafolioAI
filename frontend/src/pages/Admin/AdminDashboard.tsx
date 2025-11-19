@@ -17,7 +17,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout }) => {
           <div className="bg-[var(--color-card-bg)] rounded-lg shadow p-6">Monitor de simulaciones</div>
           <div className="bg-[var(--color-card-bg)] rounded-lg shadow p-6">Gestión de contenido</div>
           <div className="bg-[var(--color-card-bg)] rounded-lg shadow p-6">Soporte y mensajes</div>
-          <div className="bg-[var(--color-card-bg)] rounded-lg shadow p-6">Configuración del sistema</div>
           <div className="bg-[var(--color-card-bg)] rounded-lg shadow p-6">Logs y auditoría</div>
         </div>
       </div>
